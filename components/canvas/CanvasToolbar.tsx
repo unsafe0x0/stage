@@ -4,7 +4,6 @@ import { useState } from "react";
 import { CloudArrowUp, TextT, PaintBrush, Download, ArrowsOut } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { useCanvas } from "@/hooks/useCanvas";
-import { useCanvasContext } from "./CanvasContext";
 import { UploadDialog } from "./dialogs/UploadDialog";
 import { TextDialog } from "./dialogs/TextDialog";
 import { BackgroundDialog } from "./dialogs/BackgroundDialog";

@@ -27,7 +27,15 @@ Stage is a canvas editor that runs in your web browser. Think of it like a simpl
 3. **Open your browser:**
    Visit [http://localhost:3000](http://localhost:3000)
 
-4. **Optional - Set up Cloudinary for image optimization:**
+4. **Set up environment variables:**
+   Create a `.env.local` file with required variables (see Environment Variables section below).
+
+5. **Set up database:**
+   ```bash
+   npx prisma migrate dev
+   ```
+
+6. **Optional - Set up Cloudinary for image optimization:**
    See [CLOUDINARY_SETUP.md](CLOUDINARY_SETUP.md) for instructions on configuring Cloudinary to optimize all images automatically.
 
 ## How to Use
@@ -43,6 +51,24 @@ Stage is a canvas editor that runs in your web browser. Think of it like a simpl
 4. **Transform Objects**: Click and drag to move, use corner handles to resize/rotate
 5. **Export**: Click "Export" to download your design as PNG or JPG
 
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+### Required
+- `DATABASE_URL` - PostgreSQL connection string
+
+### Required for Cloudinary (Optional but Recommended)
+- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` - Your Cloudinary cloud name
+- `CLOUDINARY_API_KEY` - Cloudinary API key
+- `CLOUDINARY_API_SECRET` - Cloudinary API secret
+- Get these from your [Cloudinary Dashboard](https://cloudinary.com/console)
+
+### Required for Authentication (Better Auth)
+- `BETTER_AUTH_SECRET` - Secret key for encryption (generate with: `openssl rand -base64 32`)
+- `GOOGLE_CLIENT_ID` - Google OAuth client ID (optional, for Google sign-in)
+- `GOOGLE_CLIENT_SECRET` - Google OAuth client secret (optional)
+
 ## Tech Stack
 
 - **Next.js 16** - React framework
@@ -50,7 +76,7 @@ Stage is a canvas editor that runs in your web browser. Think of it like a simpl
 - **Konva** - Canvas rendering engine
 - **Tailwind CSS** - Styling
 - **TypeScript** - Type safety
-- **Cloudinary** - Image optimization and CDN (optional)
+- **Cloudinary** - Image optimization and CDN
 
 ## Project Structure
 

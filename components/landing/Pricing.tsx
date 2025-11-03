@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { CheckoutButton } from "@/components/payments/CheckoutButton";
 import { Instrument_Serif } from "next/font/google";
 
 const instrumentSerif = Instrument_Serif({
@@ -69,7 +70,7 @@ export function Pricing() {
             </CardHeader>
             <CardContent className="flex-1 space-y-4">
               <div className="space-y-2">
-                <p className="text-3xl font-bold">$5</p>
+                <p className="text-3xl font-bold">$7</p>
                 <p className="text-sm text-muted-foreground">One-time payment</p>
               </div>
               <ul className="space-y-2 text-sm">
@@ -92,11 +93,9 @@ export function Pricing() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Link href="/home" className="w-full">
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all">
-                  Upgrade to Pro
-                </Button>
-              </Link>
+              <CheckoutButton className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all">
+                Upgrade to Pro
+              </CheckoutButton>
             </CardFooter>
           </Card>
         </div>

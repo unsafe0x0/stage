@@ -105,10 +105,10 @@ export function Navigation({
           ) : (
             <>
               <Link href="/sign-in">
-                <Button variant="ghost">Sign In</Button>
+                <Button variant="ghost" className="hover:bg-blue-50 hover:text-blue-600">Sign In</Button>
               </Link>
               <Link href="/sign-up">
-                <Button variant="default">Sign Up</Button>
+                <Button className="bg-blue-600 text-white hover:bg-blue-700">Sign Up</Button>
               </Link>
             </>
           )}

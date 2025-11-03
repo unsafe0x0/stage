@@ -57,7 +57,7 @@ export function BackgroundDialog({ open, onOpenChange }: BackgroundDialogProps) 
       const bgRect = layer.findOne((node: any) => node.id() === "canvas-background") as Konva.Rect;
       if (bgRect && bgRect instanceof Konva.Rect) {
         bgRect.fillPatternImage(null);
-        
+        bgRect.fill(null);
         const colorStopsArray: (number | string)[] = [];
         colors.forEach((color, index) => {
           const offset = colors.length === 1 ? 0 : index / Math.max(1, colors.length - 1);
@@ -181,7 +181,10 @@ export function BackgroundDialog({ open, onOpenChange }: BackgroundDialogProps) 
           {/* Background Type Tabs */}
           <div className="flex gap-1 sm:gap-1.5 p-1 bg-gray-50 rounded-lg border border-gray-200">
             <button
-              onClick={() => setBackgroundType("solid")}
+              onClick={() => {
+                setBackgroundType("solid");
+                updateCanvasBackground(backgroundColor);
+              }}
               className={`flex-1 px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-200 ${
                 backgroundType === "solid"
                   ? "bg-white text-blue-600 shadow-sm border border-blue-200"
@@ -191,7 +194,10 @@ export function BackgroundDialog({ open, onOpenChange }: BackgroundDialogProps) 
               Solid
             </button>
             <button
-              onClick={() => setBackgroundType("gradient")}
+              onClick={() => {
+                setBackgroundType("gradient");
+                updateCanvasGradient(gradientColors, gradientType);
+              }}
               className={`flex-1 px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-200 ${
                 backgroundType === "gradient"
                   ? "bg-white text-blue-600 shadow-sm border border-blue-200"
@@ -469,7 +475,19 @@ export function BackgroundDialog({ open, onOpenChange }: BackgroundDialogProps) 
                   <label className="text-sm font-medium">Current Background</label>
                   <div className="relative rounded-lg overflow-hidden border">
                     <img
-                      src={backgroundImageUrl}
+                      src={
+                        backgroundImageUrl.startsWith("blob:") || backgroundImageUrl.startsWith("http")
+                          ? backgroundImageUrl
+                          : getCldImageUrl({
+                              src: backgroundImageUrl,
+                              width: 600,
+                              height: 200,
+                              quality: 'auto',
+                              format: 'auto',
+                              crop: 'fill',
+                              gravity: 'auto',
+                            })
+                      }
                       alt="Background preview"
                       className="w-full h-32 object-cover"
                     />
