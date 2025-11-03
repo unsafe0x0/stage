@@ -1,14 +1,34 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
-import { Canvas as FabricCanvas, Image, Text } from "fabric";
+import React, { createContext, useContext, useState, useCallback, useRef } from "react";
+import Konva from "konva";
 import type { CanvasOperations } from "@/types/editor";
 
+interface CanvasObject {
+  id: string;
+  type: "image" | "text";
+  x: number;
+  y: number;
+  width?: number;
+  height?: number;
+  scaleX?: number;
+  scaleY?: number;
+  rotation?: number;
+  fill?: string;
+  fontSize?: number;
+  text?: string;
+  imageUrl?: string;
+  image?: HTMLImageElement;
+  [key: string]: any;
+}
+
 interface CanvasContextType {
-  canvas: FabricCanvas | null;
-  initializeCanvas: (element: HTMLCanvasElement) => void;
+  stage: Konva.Stage | null;
+  layer: Konva.Layer | null;
+  initializeCanvas: (stage: Konva.Stage, layer: Konva.Layer) => void;
   operations: CanvasOperations;
-  selectedObject: any;
+  selectedObject: CanvasObject | null;
+  objects: CanvasObject[];
   history: {
     undo: () => void;
     redo: () => void;
@@ -19,186 +39,251 @@ interface CanvasContextType {
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
 export function CanvasProvider({ children }: { children: React.ReactNode }) {
-  const [canvas, setCanvas] = useState<FabricCanvas | null>(null);
-  const [selectedObject, setSelectedObject] = useState<any>(null);
-  const historyRef = useRef<string[]>([]);
-  const historyIndexRef = useRef<number>(-1);
+  const [stage, setStage] = useState<Konva.Stage | null>(null);
+  const [layer, setLayer] = useState<Konva.Layer | null>(null);
+  const [selectedObject, setSelectedObject] = useState<CanvasObject | null>(null);
+  const [objects, setObjects] = useState<CanvasObject[]>([]);
+  const historyRef = useRef<{ past: CanvasObject[][]; present: CanvasObject[]; future: CanvasObject[][] }>({
+    past: [],
+    present: [],
+    future: [],
+  });
 
-  const initializeCanvas = useCallback((element: HTMLCanvasElement) => {
-    const fabricCanvas = new FabricCanvas(element, {
-      backgroundColor: "#ffffff",
-      selection: true,
-    });
-
-    // Handle object selection
-    fabricCanvas.on("selection:created", (e) => {
-      setSelectedObject(e.selected?.[0] || null);
-    });
-
-    fabricCanvas.on("selection:updated", (e) => {
-      setSelectedObject(e.selected?.[0] || null);
-    });
-
-    fabricCanvas.on("selection:cleared", () => {
-      setSelectedObject(null);
-    });
-
-    // Save state on object modification
-    fabricCanvas.on("object:modified", () => {
-      saveState();
-    });
-
-    // Save initial state
-    historyRef.current = [JSON.stringify(fabricCanvas.toJSON())];
-    historyIndexRef.current = 0;
-
-    setCanvas(fabricCanvas);
-
-    return () => {
-      fabricCanvas.dispose();
+  const initializeCanvas = useCallback((stageInstance: Konva.Stage, layerInstance: Konva.Layer) => {
+    setStage(stageInstance);
+    setLayer(layerInstance);
+    
+    // Initialize history
+    historyRef.current = {
+      past: [],
+      present: [],
+      future: [],
     };
   }, []);
 
   const saveState = useCallback(() => {
-    if (!canvas) return;
-    const state = JSON.stringify(canvas.toJSON());
-    // Remove any future states if we're not at the end
-    if (historyIndexRef.current < historyRef.current.length - 1) {
-      historyRef.current = historyRef.current.slice(0, historyIndexRef.current + 1);
-    }
-    historyRef.current.push(state);
-    historyIndexRef.current = historyRef.current.length - 1;
-  }, [canvas]);
+    const currentState = [...objects];
+    historyRef.current.past.push([...historyRef.current.present]);
+    historyRef.current.present = [...currentState];
+    historyRef.current.future = [];
+  }, [objects]);
 
   const undo = useCallback(() => {
-    if (!canvas || historyIndexRef.current <= 0) return;
-    historyIndexRef.current--;
-    const state = historyRef.current[historyIndexRef.current];
-    canvas.loadFromJSON(state, () => {
-      canvas.renderAll();
-    });
-  }, [canvas]);
+    if (historyRef.current.past.length === 0) return;
+    const previous = historyRef.current.past.pop()!;
+    if (previous && Array.isArray(previous)) {
+      historyRef.current.future.unshift([...historyRef.current.present]);
+      historyRef.current.present = [...previous];
+      setObjects([...previous]);
+      setSelectedObject(null);
+    }
+  }, []);
 
   const redo = useCallback(() => {
-    if (!canvas || historyIndexRef.current >= historyRef.current.length - 1) return;
-    historyIndexRef.current++;
-    const state = historyRef.current[historyIndexRef.current];
-    canvas.loadFromJSON(state, () => {
-      canvas.renderAll();
-    });
-  }, [canvas]);
+    if (historyRef.current.future.length === 0) return;
+    const next = historyRef.current.future.shift()!;
+    if (next && Array.isArray(next)) {
+      historyRef.current.past.push([...historyRef.current.present]);
+      historyRef.current.present = [...next];
+      setObjects([...next]);
+      setSelectedObject(null);
+    }
+  }, []);
 
   const operations: CanvasOperations = {
     addImage: async (imageUrl, options = {}) => {
-      if (!canvas) return;
+      if (!stage || !layer) return;
+      
       try {
-        const img = await Image.fromURL(imageUrl, { crossOrigin: "anonymous" });
-        
-        // Auto-resize to fit canvas while maintaining aspect ratio
-        const canvasWidth = canvas.getWidth();
-        const canvasHeight = canvas.getHeight();
-        const imgWidth = img.width || 1;
-        const imgHeight = img.height || 1;
-        
-        let scale = 1;
-        if (imgWidth > canvasWidth || imgHeight > canvasHeight) {
-          scale = Math.min(canvasWidth / imgWidth, canvasHeight / imgHeight) * 0.8; // 80% of canvas
-        } else {
-          scale = Math.min(canvasWidth / imgWidth, canvasHeight / imgHeight) * 0.5; // 50% of canvas
-        }
-
-        img.scale(scale);
-        img.set({
-          id: `image-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          left: options.x ?? (canvasWidth - imgWidth * scale) / 2,
-          top: options.y ?? (canvasHeight - imgHeight * scale) / 2,
-          ...options,
+        const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const image = new Image();
+          image.crossOrigin = "anonymous";
+          image.onload = () => resolve(image);
+          image.onerror = reject;
+          image.src = imageUrl;
         });
 
-        canvas.add(img);
-        canvas.setActiveObject(img);
-        canvas.renderAll();
-        saveState();
+        const canvasWidth = stage.width();
+        const canvasHeight = stage.height();
+        const imgWidth = img.width || 1;
+        const imgHeight = img.height || 1;
+
+        let scale = 1;
+        if (imgWidth > canvasWidth || imgHeight > canvasHeight) {
+          scale = Math.min(canvasWidth / imgWidth, canvasHeight / imgHeight) * 0.8;
+        } else {
+          scale = Math.min(canvasWidth / imgWidth, canvasHeight / imgHeight) * 0.5;
+        }
+
+      const newObject: CanvasObject = {
+        id: `image-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        type: "image",
+        x: options.x ?? (canvasWidth - imgWidth * scale) / 2,
+        y: options.y ?? (canvasHeight - imgHeight * scale) / 2,
+        width: imgWidth * scale,
+        height: imgHeight * scale,
+        scaleX: 1,
+        scaleY: 1,
+        rotation: 0,
+        imageUrl,
+        image: img,
+      };
+
+      // For backward compatibility, also set left/top
+      (newObject as any).left = newObject.x;
+      (newObject as any).top = newObject.y;
+      (newObject as any).angle = newObject.rotation;
+
+        setObjects((prev) => {
+          const updated = [...prev, newObject];
+          saveState();
+          return updated;
+        });
+        setSelectedObject(newObject);
+        layer.batchDraw();
       } catch (error) {
         console.error("Failed to load image:", error);
       }
     },
 
     addText: async (text, options = {}) => {
-      if (!canvas) return;
-      const textObj = new Text(text, {
+      if (!stage || !layer) return;
+      
+      const canvasWidth = stage.width();
+      const canvasHeight = stage.height();
+      
+      const newObject: CanvasObject = {
         id: `text-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        left: options.x ?? canvas.getWidth() / 2,
-        top: options.y ?? canvas.getHeight() / 2,
-        fontSize: options.fontSize ?? 48,
+        type: "text",
+        x: options.x ?? canvasWidth / 2,
+        y: options.y ?? canvasHeight / 2,
+        scaleX: 1,
+        scaleY: 1,
+        rotation: 0,
         fill: options.color ?? "#000000",
-        originX: "center",
-        originY: "center",
-        ...options,
-      });
+        fontSize: options.fontSize ?? 48,
+        text: text,
+      };
 
-      canvas.add(textObj);
-      canvas.setActiveObject(textObj);
-      canvas.renderAll();
-      saveState();
+      // For backward compatibility, also set left/top
+      (newObject as any).left = newObject.x;
+      (newObject as any).top = newObject.y;
+      (newObject as any).angle = newObject.rotation;
+
+      setObjects((prev) => {
+        const updated = [...prev, newObject];
+        saveState();
+        return updated;
+      });
+      setSelectedObject(newObject);
+      layer.batchDraw();
     },
 
     transformObject: (objectId, properties) => {
-      if (!canvas) return;
-      // If no objectId provided, use selected object
-      const obj = objectId
-        ? canvas.getObjects().find((o: any) => o.id === objectId)
-        : canvas.getActiveObject();
-      if (obj) {
-        obj.set(properties);
-        canvas.renderAll();
+      if (!layer) return;
+      
+      const idToUpdate = objectId || selectedObject?.id;
+      
+      setObjects((prev) => {
+        const updated = prev.map((obj) => {
+          if (obj.id === idToUpdate) {
+            const updatedObj: any = { ...obj, ...properties };
+            // Map 'left' and 'top' to 'x' and 'y' for Konva compatibility
+            if ('left' in properties) {
+              updatedObj.x = properties.left!;
+              updatedObj.left = properties.left!;
+            }
+            if ('top' in properties) {
+              updatedObj.y = properties.top!;
+              updatedObj.top = properties.top!;
+            }
+            if ('angle' in properties) {
+              updatedObj.rotation = properties.angle!;
+              updatedObj.angle = properties.angle!;
+            }
+            // Handle text updates
+            if ('text' in properties) {
+              updatedObj.text = (properties as any).text;
+            }
+            
+            // Update selected object if it's the one being transformed
+            if (selectedObject?.id === idToUpdate) {
+              setSelectedObject(updatedObj);
+            }
+            return updatedObj;
+          }
+          return obj;
+        });
         saveState();
-      }
+        return updated;
+      });
+      
+      layer.batchDraw();
     },
 
     deleteObject: (objectId) => {
-      if (!canvas) return;
-      // If no objectId provided, use selected object
-      const obj = objectId
-        ? canvas.getObjects().find((o: any) => o.id === objectId)
-        : canvas.getActiveObject();
-      if (obj) {
-        canvas.remove(obj);
-        canvas.discardActiveObject();
-        canvas.renderAll();
+      if (!layer) return;
+      
+      const idToDelete = objectId || selectedObject?.id;
+      if (!idToDelete) return;
+
+      setObjects((prev) => {
+        const updated = prev.filter((obj) => obj.id !== idToDelete);
         saveState();
+        return updated;
+      });
+      
+      if (selectedObject?.id === idToDelete) {
+        setSelectedObject(null);
       }
+      
+      layer.batchDraw();
     },
 
     exportCanvas: async (format, quality = 1) => {
-      if (!canvas) return "";
+      if (!stage) return "";
+      
       return new Promise((resolve) => {
-        const dataURL = canvas.toDataURL({
-          format: format === "jpg" ? "jpeg" : "png",
+        const dataURL = stage.toDataURL({
+          mimeType: format === "jpg" ? "image/jpeg" : "image/png",
           quality: quality,
-          multiplier: 1,
+          pixelRatio: 1,
         });
         resolve(dataURL);
       });
     },
 
     getSelectedObject: () => {
-      return canvas?.getActiveObject() || null;
+      return selectedObject;
     },
 
     clearSelection: () => {
-      canvas?.discardActiveObject();
-      canvas?.renderAll();
+      setSelectedObject(null);
+      if (layer) {
+        layer.batchDraw();
+      }
+    },
+
+    selectObject: (objectId: string) => {
+      const obj = objects.find((o) => o.id === objectId);
+      if (obj) {
+        setSelectedObject(obj);
+        if (layer) {
+          layer.batchDraw();
+        }
+      }
     },
   };
 
   return (
     <CanvasContext.Provider
       value={{
-        canvas,
+        stage,
+        layer,
         initializeCanvas,
         operations,
         selectedObject,
+        objects,
         history: { undo, redo, save: saveState },
       }}
     >

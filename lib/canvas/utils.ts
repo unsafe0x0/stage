@@ -1,88 +1,200 @@
-import type { Template, TemplateBackground } from "@/types/canvas";
-import { Circle, Rect, Gradient } from "fabric";
+import type { Template } from "@/types/canvas";
+import Konva from "konva";
 
 /**
  * Apply a template background to a canvas context
  */
 export async function applyTemplateBackground(
-  canvas: any,
+  stage: Konva.Stage | null,
+  layer: Konva.Layer | null,
   template: Template
 ): Promise<void> {
-  if (!canvas) return;
+  if (!stage || !layer) return;
 
   const { background } = template;
 
   switch (background.type) {
     case "solid":
-      canvas.backgroundColor = background.color || "#ffffff";
-      canvas.renderAll();
+      // Set stage background color via CSS or add a background rect
+      const bgRect = layer.findOne("#background-rect");
+      if (bgRect) {
+        bgRect.destroy();
+      }
+      
+      const rect = new Konva.Rect({
+        id: "background-rect",
+        x: 0,
+        y: 0,
+        width: stage.width(),
+        height: stage.height(),
+        fill: background.color || "#ffffff",
+        listening: false,
+      });
+      layer.add(rect);
+      rect.moveToBottom();
+      layer.batchDraw();
       break;
 
     case "gradient":
       if (background.gradient) {
-        const gradient = new Gradient({
-          type: background.gradient.type,
-          coords: {
-            x1: 0,
-            y1: 0,
-            x2: background.gradient.type === "linear" ? canvas.getWidth() : 0,
-            y2: background.gradient.type === "linear" ? canvas.getHeight() : canvas.getWidth(),
-            r1: 0,
-            r2: canvas.getWidth() / 2,
-          },
-          colorStops: background.gradient.colors.map((color, index) => ({
-            offset: index / (background.gradient!.colors.length - 1),
-            color,
-          })),
-        });
+        const bgRect2 = layer.findOne("#background-rect");
+        if (bgRect2) {
+          bgRect2.destroy();
+        }
 
-        canvas.backgroundColor = gradient as any;
-        canvas.renderAll();
+        const gradientColors = background.gradient.colors;
+        let gradient;
+        
+        if (background.gradient.type === "linear") {
+          gradient = {
+            start: { x: 0, y: 0 },
+            end: { x: stage.width(), y: stage.height() },
+            colorStops: gradientColors.map((color, index) => ({
+              offset: index / (gradientColors.length - 1),
+              color,
+            })),
+          };
+        } else {
+          // radial
+          const centerX = stage.width() / 2;
+          const centerY = stage.height() / 2;
+          const radius = Math.max(stage.width(), stage.height()) / 2;
+          gradient = {
+            start: { x: centerX, y: centerY },
+            end: { x: centerX + radius, y: centerY },
+            colorStops: gradientColors.map((color, index) => ({
+              offset: index / (gradientColors.length - 1),
+              color,
+            })),
+          };
+        }
+
+        const gradientRect = new Konva.Rect({
+          id: "background-rect",
+          x: 0,
+          y: 0,
+          width: stage.width(),
+          height: stage.height(),
+          fillLinearGradientColorStops: background.gradient.type === "linear" 
+            ? gradientColors.flatMap((color, i) => [i / (gradientColors.length - 1), color])
+            : undefined,
+          fillRadialGradientColorStops: background.gradient.type === "radial"
+            ? gradientColors.flatMap((color, i) => [i / (gradientColors.length - 1), color])
+            : undefined,
+          fillRadialGradientStartPoint: background.gradient.type === "radial" 
+            ? { x: stage.width() / 2, y: stage.height() / 2 }
+            : undefined,
+          fillRadialGradientStartRadius: background.gradient.type === "radial" ? 0 : undefined,
+          fillRadialGradientEndPoint: background.gradient.type === "radial"
+            ? { x: stage.width() / 2, y: stage.height() / 2 }
+            : undefined,
+          fillRadialGradientEndRadius: background.gradient.type === "radial"
+            ? Math.max(stage.width(), stage.height()) / 2
+            : undefined,
+          listening: false,
+        });
+        
+        // For linear gradient, use fillLinearGradientColorStops
+        if (background.gradient.type === "linear") {
+          const colorStops: number[] = [];
+          gradientColors.forEach((color, index) => {
+            colorStops.push(index / (gradientColors.length - 1));
+            colorStops.push(color);
+          });
+          gradientRect.fillLinearGradientColorStops(colorStops);
+          gradientRect.fillLinearGradientStartPoint({ x: 0, y: 0 });
+          gradientRect.fillLinearGradientEndPoint({ x: stage.width(), y: stage.height() });
+        } else {
+          // radial
+          const colorStops: number[] = [];
+          gradientColors.forEach((color, index) => {
+            colorStops.push(index / (gradientColors.length - 1));
+            colorStops.push(color);
+          });
+          gradientRect.fillRadialGradientColorStops(colorStops);
+          gradientRect.fillRadialGradientStartPoint({ x: stage.width() / 2, y: stage.height() / 2 });
+          gradientRect.fillRadialGradientStartRadius(0);
+          gradientRect.fillRadialGradientEndPoint({ x: stage.width() / 2, y: stage.height() / 2 });
+          gradientRect.fillRadialGradientEndRadius(Math.max(stage.width(), stage.height()) / 2);
+        }
+        
+        layer.add(gradientRect);
+        gradientRect.moveToBottom();
+        layer.batchDraw();
       }
       break;
 
     case "shapes":
       // First set base color
-      canvas.backgroundColor = background.color || "#ffffff";
+      const bgRect3 = layer.findOne("#background-rect");
+      if (bgRect3) {
+        bgRect3.destroy();
+      }
+      
+      const baseRect = new Konva.Rect({
+        id: "background-rect",
+        x: 0,
+        y: 0,
+        width: stage.width(),
+        height: stage.height(),
+        fill: background.color || "#ffffff",
+        listening: false,
+      });
+      layer.add(baseRect);
+      baseRect.moveToBottom();
+      
       // Then add shapes as canvas objects
       if (background.shapes) {
         background.shapes.forEach((shape) => {
-          let fabricShape;
+          let konvaShape: Konva.Shape | null = null;
+          
           if (shape.type === "circle") {
-            fabricShape = new Circle({
-              left: shape.x,
-              top: shape.y,
+            konvaShape = new Konva.Circle({
+              x: shape.x,
+              y: shape.y,
               radius: shape.width / 2,
               fill: shape.color,
               opacity: shape.opacity ?? 1,
-              selectable: false,
-              evented: false,
+              listening: false,
             });
           } else if (shape.type === "rect") {
-            fabricShape = new Rect({
-              left: shape.x,
-              top: shape.y,
+            konvaShape = new Konva.Rect({
+              x: shape.x,
+              y: shape.y,
               width: shape.width,
               height: shape.height,
               fill: shape.color,
               opacity: shape.opacity ?? 1,
-              selectable: false,
-              evented: false,
+              listening: false,
             });
           }
 
-          if (fabricShape) {
-            canvas.add(fabricShape);
-            canvas.sendToBack(fabricShape);
+          if (konvaShape) {
+            layer.add(konvaShape);
+            konvaShape.moveToBottom();
           }
         });
-        canvas.renderAll();
+        layer.batchDraw();
       }
       break;
 
     default:
-      canvas.backgroundColor = "#ffffff";
-      canvas.renderAll();
+      const defaultRect = layer.findOne("#background-rect");
+      if (defaultRect) {
+        defaultRect.destroy();
+      }
+      
+      const rect2 = new Konva.Rect({
+        id: "background-rect",
+        x: 0,
+        y: 0,
+        width: stage.width(),
+        height: stage.height(),
+        fill: "#ffffff",
+        listening: false,
+      });
+      layer.add(rect2);
+      rect2.moveToBottom();
+      layer.batchDraw();
   }
 }
-

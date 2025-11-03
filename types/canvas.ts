@@ -1,5 +1,3 @@
-import type { FabricObject } from "fabric";
-
 // Template types
 export type TemplateType = "solid" | "gradient" | "shapes" | "mockup";
 
@@ -46,13 +44,30 @@ export interface Template {
 // Canvas object types
 export type CanvasObjectType = "image" | "text";
 
-export interface CanvasImageObject extends FabricObject {
+export interface CanvasImageObject {
+  id: string;
   type: "image";
-  src?: string;
+  x: number;
+  y: number;
+  width?: number;
+  height?: number;
+  scaleX?: number;
+  scaleY?: number;
+  rotation?: number;
+  imageUrl?: string;
+  image?: HTMLImageElement;
 }
 
-export interface CanvasTextObject extends FabricObject {
+export interface CanvasTextObject {
+  id: string;
   type: "text";
+  x: number;
+  y: number;
+  scaleX?: number;
+  scaleY?: number;
+  rotation?: number;
+  fill?: string;
+  fontSize?: number;
   text?: string;
 }
 

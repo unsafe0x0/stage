@@ -73,8 +73,8 @@ export function TransformControls({ className }: TransformControlsProps) {
     );
   }
 
-  const canvasWidth = canvas?.getWidth() || 1920;
-  const canvasHeight = canvas?.getHeight() || 1080;
+  const canvasWidth = canvas ? (typeof canvas.width === 'function' ? canvas.width() : canvas.width || 1920) : 1920;
+  const canvasHeight = canvas ? (typeof canvas.height === 'function' ? canvas.height() : canvas.height || 1080) : 1080;
 
   return (
     <Card className={cn("w-full", className)}>

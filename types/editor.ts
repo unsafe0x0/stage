@@ -40,9 +40,10 @@ export type EditorAction =
 export interface CanvasOperations {
   addImage: (imageUrl: string, options?: { width?: number; height?: number; x?: number; y?: number }) => Promise<void>;
   addText: (text: string, options?: { fontSize?: number; color?: string; x?: number; y?: number }) => Promise<void>;
-  transformObject: (objectId: string | undefined, properties: Partial<{ left: number; top: number; scaleX: number; scaleY: number; angle: number }>) => void;
+  transformObject: (objectId: string | undefined, properties: Partial<{ left: number; top: number; scaleX: number; scaleY: number; angle: number; text?: string }>) => void;
   deleteObject: (objectId: string | undefined) => void;
   exportCanvas: (format: "png" | "jpg", quality?: number) => Promise<string>;
   getSelectedObject: () => any;
   clearSelection: () => void;
+  selectObject?: (objectId: string) => void;
 }

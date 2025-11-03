@@ -39,11 +39,14 @@ export function TextControls({ className }: TextControlsProps) {
     if (!text.trim() || !canvas) return;
 
     try {
+      const width = typeof canvas.width === 'function' ? canvas.width() : canvas.width || 1920;
+      const height = typeof canvas.height === 'function' ? canvas.height() : canvas.height || 1080;
+      
       await operations.addText(text, {
         fontSize,
         color,
-        x: canvas.getWidth() / 2,
-        y: canvas.getHeight() / 2,
+        x: width / 2,
+        y: height / 2,
       });
       // Reset form
       setText("");
@@ -74,13 +77,10 @@ export function TextControls({ className }: TextControlsProps) {
     (newText: string) => {
       if (!isTextSelected || !selectedObject) return;
       setText(newText);
-      // Update text directly on the object
-      selectedObject.set("text", newText);
-      canvas?.renderAll();
-      // Trigger state save through transform (it will save state)
-      operations.transformObject(undefined, {});
+      // Update text directly through transformObject with text property
+      operations.transformObject(undefined, { text: newText } as any);
     },
-    [isTextSelected, selectedObject, canvas, operations]
+    [isTextSelected, selectedObject, operations]
   );
 
   return (
