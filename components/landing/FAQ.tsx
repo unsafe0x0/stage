@@ -30,11 +30,11 @@ const defaultFAQs: FAQItem[] = [
   },
   {
     question: "Do I need an account?",
-    answer: "Yes. Sign up with Google to access the editor and save your designs. It's free and takes just seconds.",
+    answer: "No! Stage is completely free and requires no account. Simply start creating your designs right away.",
   },
   {
     question: "Is it free?",
-    answer: "Yes! Stage is completely free. Create unlimited designs, save them to your account, and export without any restrictions.",
+    answer: "Yes! Stage is completely free. Create unlimited designs and export without any restrictions.",
   },
   {
     question: "What can I create with Stage?",
@@ -58,7 +58,7 @@ const defaultFAQs: FAQItem[] = [
   },
   {
     question: "Can I save my designs?",
-    answer: "Yes! Save your designs with custom names and descriptions. Access them anytime from your designs gallery to continue editing or export again.",
+    answer: "You can export your designs directly to your device. Export your completed designs as PNG or JPG files and save them wherever you like.",
   },
   {
     question: "What customization options do I have?",
