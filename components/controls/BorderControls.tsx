@@ -1,183 +1,483 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { GlassInputWrapper } from '@/components/ui/glass-input-wrapper';
-import { ImageBorder } from '@/lib/store';
-import { BorderStyleSelector } from './BorderStyleSelector';
+import * as React from 'react'
 
-interface BorderControlsProps {
-  border: ImageBorder;
-  onBorderChange: (border: ImageBorder | Partial<ImageBorder>) => void;
-}
+import { useImageStore } from '@/lib/store'
 
-export function BorderControls({ border, onBorderChange }: BorderControlsProps) {
-  const isBasicStyle = ['solid', 'dashed', 'dotted', 'double'].includes(border.style);
-  const isDefaultStyle = border.style === 'default';
+import { Slider } from '@/components/ui/slider'
+
+import { Input } from '@/components/ui/input'
+
+import { useState, useEffect } from 'react'
+
+const isValidHex = (color: string) => /^#[0-9A-F]{6}$/i.test(color)
+
+function ColorInput({
+
+  value,
+
+  onChange,
+
+  className = '',
+
+}: {
+
+  value: string
+
+  onChange: (value: string) => void
+
+  className?: string
+
+}) {
+
+  const [localValue, setLocalValue] = useState(value)
+
+  useEffect(() => {
+
+    setLocalValue(value)
+
+  }, [value])
+
+  const handleBlur = () => {
+
+    if (isValidHex(localValue)) {
+
+      onChange(localValue)
+
+    } else {
+
+      setLocalValue(value)
+
+    }
+
+  }
 
   return (
+
+    <Input
+
+      type="text"
+
+      value={localValue}
+
+      onChange={(e) => setLocalValue(e.target.value)}
+
+      onBlur={handleBlur}
+
+      className={className}
+
+    />
+
+  )
+
+}
+
+const frameOptions = [
+
+  { value: 'none', label: 'None' },
+
+  { value: 'solid', label: 'Solid' },
+
+  { value: 'glassy', label: 'Glassy' },
+
+  { value: 'infinite-mirror', label: 'Mirror' },
+
+  { value: 'window-light', label: 'Window' },
+
+  { value: 'window-dark', label: 'Dark Window' },
+
+  { value: 'stack-light', label: 'Stack' },
+
+  { value: 'stack-dark', label: 'Dark Stack' },
+
+  { value: 'ruler', label: 'Ruler' },
+
+  { value: 'eclipse', label: 'Neo' },
+
+  { value: 'dotted', label: 'Dotted' },
+
+  { value: 'focus', label: 'Focus' },
+
+] as const
+
+type FrameType = (typeof frameOptions)[number]['value']
+
+function FramePreview({
+
+  type,
+
+  selected,
+
+  onSelect,
+
+  children,
+
+}: {
+
+  type: FrameType
+
+  selected: boolean
+
+  onSelect: () => void
+
+  children: React.ReactNode
+
+}) {
+
+  return (
+
+    <div className="flex flex-col items-center gap-2">
+
+      <button
+
+        onClick={onSelect}
+
+        aria-selected={selected}
+
+        className="flex h-14 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-transparent bg-secondary transition-colors duration-200 aria-selected:border-primary hover:bg-secondary/80"
+
+        title={type}
+
+      >
+
+        <div className="relative h-8 w-10">{children}</div>
+
+      </button>
+
+      <div className="text-xs text-muted-foreground">{frameOptions.find((f) => f.value === type)?.label}</div>
+
+    </div>
+
+  )
+
+}
+
+const framePreviews: Record<FrameType, React.ReactNode> = {
+
+  none: <div className="size-full rounded-md border-2 border-dashed border-muted-foreground/50" />,
+
+  solid: <div className="size-full rounded-md border-4 border-primary/80" />,
+
+  glassy: <div className="size-full rounded-md border-2 border-white/50 bg-white/10 backdrop-blur-sm" />,
+
+  'window-light': (
+
+    <div className="flex size-full flex-col rounded-md border-2 border-neutral-300 bg-white/80">
+
+      <div className="flex h-2 items-center gap-0.5 rounded-t-sm bg-neutral-200 px-1">
+
+        <div className="size-1 rounded-full bg-red-400" />
+
+        <div className="size-1 rounded-full bg-yellow-400" />
+
+        <div className="size-1 rounded-full bg-green-400" />
+
+      </div>
+
+    </div>
+
+  ),
+
+  'window-dark': (
+
+    <div className="flex size-full flex-col rounded-md border-2 border-neutral-700 bg-black/80">
+
+      <div className="flex h-2 items-center gap-0.5 rounded-t-sm bg-neutral-800 px-1">
+
+        <div className="size-1 rounded-full bg-red-500" />
+
+        <div className="size-1 rounded-full bg-yellow-500" />
+
+        <div className="size-1 rounded-full bg-green-500" />
+
+      </div>
+
+    </div>
+
+  ),
+
+  'infinite-mirror': (
+
+    <div className="size-full rounded-md border-2 border-primary/80 p-1">
+
+      <div className="size-full rounded-[3px] border-2 border-primary/60 p-0.5">
+
+        <div className="size-full rounded-[2px] border-2 border-primary/40" />
+
+      </div>
+
+    </div>
+
+  ),
+
+  ruler: (
+
+    <div className="relative size-full overflow-hidden rounded-sm bg-amber-400/80">
+
+      <div className="absolute left-0 top-0 h-full w-px bg-black/70" />
+
+      <div className="absolute left-0 top-0 h-px w-full bg-black/70" />
+
+      <div className="absolute left-2 top-0 h-1 w-px bg-black/70" />
+
+      <div className="absolute left-4 top-0 h-1.5 w-px bg-black/70" />
+
+      <div className="absolute left-6 top-0 h-1 w-px bg-black/70" />
+
+      <div className="absolute left-8 top-0 h-2 w-px bg-black/70" />
+
+      <div className="absolute top-2 left-0 w-1 h-px bg-black/70" />
+
+      <div className="absolute top-4 left-0 w-1.5 h-px bg-black/70" />
+
+      <div className="absolute top-6 left-0 w-1 h-px bg-black/70" />
+
+    </div>
+
+  ),
+
+  eclipse: <div className="size-full rounded-full bg-secondary-foreground" />,
+
+  'stack-light': (
+
+    <div className="relative size-full">
+
+      <div className="absolute left-0 top-0 h-5/6 w-5/6 rounded-md border-2 border-neutral-300 bg-white/80" />
+
+      <div className="absolute bottom-0 right-0 h-5/6 w-5/6 rounded-md border-2 border-neutral-400/80 bg-white/60" />
+
+    </div>
+
+  ),
+
+  'stack-dark': (
+
+    <div className="relative size-full">
+
+      <div className="absolute left-0 top-0 h-5/6 w-5/6 rounded-md border-2 border-neutral-700 bg-black/80" />
+
+      <div className="absolute bottom-0 right-0 h-5/6 w-5/6 rounded-md border-2 border-neutral-600/80 bg-black/60" />
+
+    </div>
+
+  ),
+
+  dotted: <div className="size-full rounded-md border-2 border-dashed border-primary/80" />,
+
+  focus: (
+
+    <div className="relative size-full">
+
+      <div className="absolute -top-0.5 -left-0.5 h-3 w-3 rounded-tl-md border-t-2 border-l-2 border-primary/80" />
+
+      <div className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-tr-md border-t-2 border-r-2 border-primary/80" />
+
+      <div className="absolute -bottom-0.5 -left-0.5 h-3 w-3 rounded-bl-md border-b-2 border-l-2 border-primary/80" />
+
+      <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-br-md border-b-2 border-r-2 border-primary/80" />
+
+    </div>
+
+  ),
+
+}
+
+export function BorderControls() {
+
+  const { imageBorder, setImageBorder } = useImageStore()
+
+  const handleSelect = (value: FrameType) => {
+
+    if (value.startsWith('window-') || value.startsWith('stack-')) {
+
+      const [type, theme] = value.split('-')
+
+      setImageBorder({ type: type as 'window' | 'stack', theme: theme as 'light' | 'dark', enabled: true })
+
+    } else {
+
+      setImageBorder({ type: value as Exclude<FrameType, `${'window' | 'stack'}-${'light' | 'dark'}`>, enabled: true })
+
+    }
+
+  }
+
+  const isSelected = (value: FrameType) => {
+
+    if (value.startsWith('window-') || value.startsWith('stack-')) {
+
+      const [type, theme] = value.split('-')
+
+      return imageBorder.type === type && imageBorder.theme === theme
+
+    }
+
+    return imageBorder.type === value
+
+  }
+
+  return (
+
     <div className="space-y-4">
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Border
-          </Label>
-          <Button
-            variant={border.enabled ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => onBorderChange({ enabled: !border.enabled })}
-            className={`text-xs transition-all rounded-lg ${
-              border.enabled
-                ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
-                : 'border-border hover:border-border/80 hover:bg-accent text-foreground'
-            }`}
-          >
-            {border.enabled ? 'Enabled' : 'Disabled'}
-          </Button>
+
+      <div className="text-sm font-medium text-muted-foreground">Frame</div>
+
+      <div className="space-y-4 border-t border-border pt-4">
+
+        <div>
+
+          <label className="mb-2 block text-xs text-muted-foreground">Style</label>
+
+          <div className="grid grid-cols-3 gap-x-2 gap-y-4">
+
+            {frameOptions.map(({ value }) => (
+
+              <FramePreview
+
+                key={value}
+
+                type={value}
+
+                selected={isSelected(value)}
+
+                onSelect={() => handleSelect(value)}
+
+              >
+
+                {framePreviews[value]}
+
+              </FramePreview>
+
+            ))}
+
+          </div>
+
         </div>
 
-        {border.enabled && (
-          <>
-            <BorderStyleSelector border={border} onBorderChange={onBorderChange} />
+        {['solid', 'dotted', 'infinite-mirror', 'eclipse', 'focus', 'ruler'].includes(imageBorder.type) && (
 
-            {/* Show message for default style */}
-            {isDefaultStyle && (
-              <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-xs text-gray-600">
-                  Default style means no border will be applied to the image.
-                </p>
+          <div>
+
+            <label className="text-xs text-muted-foreground mb-2 block">Color</label>
+
+            <div className="flex items-center gap-2">
+
+              <div
+
+                className="relative size-9 shrink-0 overflow-hidden rounded-lg"
+
+                style={{ backgroundColor: imageBorder.color }}
+
+              >
+
+                <input
+
+                  type="color"
+
+                  value={imageBorder.color}
+
+                  onChange={(e) => setImageBorder({ color: e.target.value, enabled: true })}
+
+                  className="absolute inset-0 size-full cursor-pointer opacity-0"
+
+                />
+
               </div>
-            )}
 
-            {isBasicStyle && (
-              <>
-                {/* Individual Border Controls */}
-                <div className="space-y-3">
-                  <Label className="text-xs font-medium text-gray-700">Border Sides</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => onBorderChange({ top: !border.top })}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                        border.top
-                          ? 'bg-primary text-primary-foreground shadow-sm'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      Top {border.top ? '✓' : ''}
-                    </button>
-                    <button
-                      onClick={() => onBorderChange({ right: !border.right })}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                        border.right
-                          ? 'bg-primary text-primary-foreground shadow-sm'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      Right {border.right ? '✓' : ''}
-                    </button>
-                    <button
-                      onClick={() => onBorderChange({ bottom: !border.bottom })}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                        border.bottom
-                          ? 'bg-primary text-primary-foreground shadow-sm'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      Bottom {border.bottom ? '✓' : ''}
-                    </button>
-                    <button
-                      onClick={() => onBorderChange({ left: !border.left })}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                        border.left
-                          ? 'bg-primary text-primary-foreground shadow-sm'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      Left {border.left ? '✓' : ''}
-                    </button>
-                  </div>
-                </div>
+              <ColorInput
 
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <Label className="text-xs font-medium text-gray-700">Border Width</Label>
-                    <span className="text-xs text-gray-500 font-medium">{border.width}px</span>
-                  </div>
-                  <Slider
-                    value={[border.width]}
-                    onValueChange={(value) => onBorderChange({ width: value[0] })}
-                    min={0.5}
-                    max={20}
-                    step={0.5}
-                    className="w-full"
-                  />
-                </div>
+                value={imageBorder.color}
 
-                <div className="space-y-3">
-                  <Label className="text-xs font-medium text-gray-700">Border Color</Label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      value={border.color}
-                      onChange={(e) => onBorderChange({ color: e.target.value })}
-                      className="w-12 h-10 rounded-lg border border-gray-300 cursor-pointer hover:border-gray-400 transition-colors shadow-sm"
-                      title="Pick border color"
-                    />
-                    <GlassInputWrapper className="flex-1">
-                      <Input
-                        type="text"
-                        value={border.color}
-                        onChange={(e) => onBorderChange({ color: e.target.value })}
-                        placeholder="#000000"
-                        className="border-0 bg-transparent text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
-                      />
-                    </GlassInputWrapper>
-                  </div>
-                </div>
+                onChange={(color) => setImageBorder({ color, enabled: true })}
 
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <Label className="text-xs font-medium text-gray-700">Border Radius</Label>
-                    <span className="text-xs text-gray-500 font-medium">{border.borderRadius}px</span>
-                  </div>
-                  <Slider
-                    value={[border.borderRadius]}
-                    onValueChange={(value) => onBorderChange({ borderRadius: value[0] })}
-                    min={0}
-                    max={50}
-                    step={1}
-                    className="w-full"
-                  />
-                </div>
+              />
 
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs font-medium text-gray-700">Inset (Ring Inset)</Label>
-                    <Button
-                      variant={border.inset ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => onBorderChange({ inset: !border.inset })}
-                      className={`text-xs transition-all rounded-lg ${
-                        border.inset
-                          ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
-                          : 'border-border hover:border-border/80 hover:bg-accent text-foreground'
-                      }`}
-                    >
-                      {border.inset ? 'On' : 'Off'}
-                    </Button>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    When enabled, border appears inside the element using box-shadow inset
-                  </p>
-                </div>
-              </>
-            )}
-          </>
+            </div>
+
+          </div>
+
         )}
+
+        {['solid', 'dotted', 'eclipse', 'ruler', 'focus'].includes(imageBorder.type) && (
+
+          <div>
+
+            <label className="text-xs text-muted-foreground mb-2 block">
+
+              Width
+
+            </label>
+
+            <Slider
+
+              value={[imageBorder.width]}
+
+              onValueChange={([value]) => setImageBorder({ width: value })}
+
+              min={1}
+
+              max={50}
+
+              step={0.5}
+
+            />
+
+          </div>
+
+        )}
+
+        {imageBorder.type === 'window' && (
+
+          <>
+
+            <div>
+
+              <label className="text-xs text-muted-foreground mb-2 block">Title</label>
+
+              <Input
+
+                type="text"
+
+                value={imageBorder.title || ''}
+
+                onChange={(e) => setImageBorder({ title: e.target.value, enabled: true })}
+
+              />
+
+            </div>
+
+            <div>
+
+              <label className="text-xs text-muted-foreground mb-2 block">
+
+                Padding
+
+              </label>
+
+              <Slider
+
+                value={[imageBorder.padding || 20]}
+
+                onValueChange={([value]) => setImageBorder({ padding: value })}
+
+                min={0}
+
+                max={100}
+
+                step={1}
+
+              />
+
+            </div>
+
+          </>
+
+        )}
+
       </div>
+
     </div>
-  );
+
+  )
+
 }

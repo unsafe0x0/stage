@@ -32,16 +32,18 @@ export interface ImageBorder {
   enabled: boolean;
   width: number;
   color: string;
-  style: 'solid' | 'dashed' | 'dotted' | 'double' | 'default' | 'outline' | 'border';
-  // Individual border controls
-  top: boolean;
-  right: boolean;
-  bottom: boolean;
-  left: boolean;
-  // Border radius for the border itself
-  borderRadius: number;
-  // Inset (ring inset) - makes border appear inside
-  inset: boolean;
+  type: 'none' | 'solid' | 'glassy' | 'infinite-mirror' | 'window' | 'stack' | 'ruler' | 'eclipse' | 'dotted' | 'focus';
+  theme?: 'light' | 'dark'; // For window and stack types
+  padding?: number; // For window type
+  title?: string; // For window type
+  // Legacy fields for backward compatibility
+  style?: 'solid' | 'dashed' | 'dotted' | 'double' | 'default' | 'outline' | 'border';
+  top?: boolean;
+  right?: boolean;
+  bottom?: boolean;
+  left?: boolean;
+  borderRadius?: number;
+  inset?: boolean;
 }
 
 export interface ImageShadow {
@@ -106,13 +108,10 @@ export const useImageStore = create<ImageState>((set, get) => ({
     enabled: false,
     width: 2,
     color: '#000000',
-    style: 'default',
-    top: true,
-    right: true,
-    bottom: true,
-    left: true,
-    borderRadius: 0,
-    inset: false,
+    type: 'none',
+    theme: 'light',
+    padding: 20,
+    title: '',
   },
   imageShadow: {
     enabled: false,

@@ -10,7 +10,7 @@ interface FeaturesProps {
 
 export function Features({ features, title }: FeaturesProps) {
   return (
-    <section className="w-full py-12 sm:py-16 px-4 sm:px-6 border-t border-border">
+    <section className="w-full py-12 sm:py-16 px-4 sm:px-6 border-t border-border bg-white">
       <div className="container mx-auto max-w-6xl">
         {title && (
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 px-2">{title}</h2>

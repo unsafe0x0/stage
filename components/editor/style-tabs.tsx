@@ -508,7 +508,7 @@ export function StyleTabs() {
             />
           </div>
 
-          <BorderControls border={imageBorder} onBorderChange={setImageBorder} />
+          <BorderControls />
 
           <ShadowControls shadow={imageShadow} onShadowChange={setImageShadow} />
 

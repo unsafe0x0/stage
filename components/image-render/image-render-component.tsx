@@ -17,7 +17,7 @@ export const ImageRenderComponent = ({
   // Default shadow for styles that need it
   const defaultShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
 
-  // Build border styles based on border type
+  // Build border styles based on frame type
   const getBorderStyles = () => {
     const baseStyles: React.CSSProperties = {
       borderRadius: `${borderRadius}px`,
@@ -27,89 +27,85 @@ export const ImageRenderComponent = ({
       boxShadow: shadowStyle !== 'none' ? shadowStyle : undefined,
     };
 
-    if (!imageBorder.enabled) {
+    if (!imageBorder.enabled || imageBorder.type === 'none') {
       return baseStyles;
     }
 
-    // Build individual border styles
-    const buildIndividualBorders = () => {
-      const borders: React.CSSProperties = {};
-      
-      // If inset is enabled, use box-shadow inset effect instead of borders
-      if (imageBorder.inset) {
-        // Build inset shadow for each enabled side
-        const insetShadows: string[] = [];
-        if (imageBorder.top) insetShadows.push(`inset 0 ${imageBorder.width || 2}px 0 0 ${imageBorder.color || '#000000'}`);
-        if (imageBorder.right) insetShadows.push(`inset -${imageBorder.width || 2}px 0 0 0 ${imageBorder.color || '#000000'}`);
-        if (imageBorder.bottom) insetShadows.push(`inset 0 -${imageBorder.width || 2}px 0 0 ${imageBorder.color || '#000000'}`);
-        if (imageBorder.left) insetShadows.push(`inset ${imageBorder.width || 2}px 0 0 0 ${imageBorder.color || '#000000'}`);
-        
-        if (insetShadows.length > 0) {
-          // Combine with existing shadow if any
-          const existingShadow = baseStyles.boxShadow ? `${baseStyles.boxShadow}, ` : '';
-          borders.boxShadow = `${existingShadow}${insetShadows.join(', ')}`;
-        } else if (shadowStyle !== 'none') {
-          borders.boxShadow = shadowStyle;
-        }
-      } else {
-        // Regular borders - only apply if at least one side is enabled
-        if (imageBorder.top || imageBorder.right || imageBorder.bottom || imageBorder.left) {
-          const borderColor = imageBorder.color || '#000000';
-          const borderStyleType = imageBorder.style === 'default' ? 'solid' : imageBorder.style;
-          const borderValue = `${imageBorder.width || 2}px ${borderStyleType} ${borderColor}`;
-          
-          if (imageBorder.top) borders.borderTop = borderValue;
-          if (imageBorder.right) borders.borderRight = borderValue;
-          if (imageBorder.bottom) borders.borderBottom = borderValue;
-          if (imageBorder.left) borders.borderLeft = borderValue;
-        }
-      }
+    const borderColor = imageBorder.color || '#000000';
+    const borderWidth = imageBorder.width || 2;
 
-      return borders;
-    };
+    // Apply border radius
+    const borderRadiusStyle = { borderRadius: `${borderRadius}px` };
 
-    // Apply border radius to border itself if specified, otherwise use image borderRadius
-    const borderRadiusStyle = imageBorder.borderRadius > 0 
-      ? { borderRadius: `${imageBorder.borderRadius}px` }
-      : { borderRadius: `${borderRadius}px` };
-
-    switch (imageBorder.style) {
-      case 'default':
-        // Default style means no border - just return base styles
+    switch (imageBorder.type) {
+      case 'solid':
         return {
           ...baseStyles,
           ...borderRadiusStyle,
+          border: `${borderWidth}px solid ${borderColor}`,
           boxShadow: shadowStyle !== 'none' ? shadowStyle : defaultShadow,
         };
 
-      case 'outline':
-        const outlineBorders = buildIndividualBorders();
-        return {
-          ...baseStyles,
-          ...outlineBorders,
-          ...borderRadiusStyle,
-          boxShadow: outlineBorders.boxShadow || (shadowStyle !== 'none' ? shadowStyle : defaultShadow),
-        };
-
-      case 'border':
-        const borderBorders = buildIndividualBorders();
-        return {
-          ...baseStyles,
-          ...borderBorders,
-          ...borderRadiusStyle,
-          boxShadow: borderBorders.boxShadow || (shadowStyle !== 'none' ? shadowStyle : defaultShadow),
-        };
-
-      case 'solid':
-      case 'dashed':
       case 'dotted':
-      case 'double':
-        const styleBorders = buildIndividualBorders();
         return {
           ...baseStyles,
-          ...styleBorders,
           ...borderRadiusStyle,
-          boxShadow: styleBorders.boxShadow || (shadowStyle !== 'none' ? shadowStyle : defaultShadow),
+          border: `${borderWidth}px dotted ${borderColor}`,
+          boxShadow: shadowStyle !== 'none' ? shadowStyle : defaultShadow,
+        };
+
+      case 'glassy':
+        return {
+          ...baseStyles,
+          ...borderRadiusStyle,
+          border: `${borderWidth}px solid rgba(255, 255, 255, 0.5)`,
+          backdropFilter: 'blur(10px)',
+          boxShadow: shadowStyle !== 'none' ? shadowStyle : defaultShadow,
+        };
+
+      case 'infinite-mirror':
+        return {
+          ...baseStyles,
+          ...borderRadiusStyle,
+          border: `${borderWidth}px solid ${borderColor}`,
+          padding: `${borderWidth}px`,
+          boxShadow: shadowStyle !== 'none' ? shadowStyle : defaultShadow,
+        };
+
+      case 'eclipse':
+        return {
+          ...baseStyles,
+          borderRadius: '50%',
+          border: `${borderWidth}px solid ${borderColor}`,
+          boxShadow: shadowStyle !== 'none' ? shadowStyle : defaultShadow,
+        };
+
+      case 'focus':
+        return {
+          ...baseStyles,
+          ...borderRadiusStyle,
+          border: `${borderWidth}px solid ${borderColor}`,
+          boxShadow: shadowStyle !== 'none' ? shadowStyle : defaultShadow,
+        };
+
+      case 'ruler':
+        return {
+          ...baseStyles,
+          ...borderRadiusStyle,
+          border: `${borderWidth}px solid ${borderColor}`,
+          background: 'rgba(251, 191, 36, 0.8)',
+          boxShadow: shadowStyle !== 'none' ? shadowStyle : defaultShadow,
+        };
+
+      case 'window':
+      case 'stack':
+        // These require more complex rendering with wrapper elements
+        // For now, apply a basic border
+        return {
+          ...baseStyles,
+          ...borderRadiusStyle,
+          border: `${borderWidth}px solid ${borderColor}`,
+          boxShadow: shadowStyle !== 'none' ? shadowStyle : defaultShadow,
         };
 
       default:
