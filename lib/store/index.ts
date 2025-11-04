@@ -1,100 +1,433 @@
-'use client';
+'use client'
 
-import { create } from 'zustand';
-import { exportImageWithGradient } from './export-utils';
-import { GradientKey } from '@/lib/constants/gradient-colors';
-import { AspectRatioKey } from '@/lib/constants/aspect-ratios';
-import { BackgroundConfig, BackgroundType } from '@/lib/constants/backgrounds';
+import React from 'react'
+import { create } from 'zustand'
+import { exportImageWithGradient } from './export-utils'
+import { GradientKey } from '@/lib/constants/gradient-colors'
+import { AspectRatioKey } from '@/lib/constants/aspect-ratios'
+import { BackgroundConfig, BackgroundType } from '@/lib/constants/backgrounds'
+import { gradientColors } from '@/lib/constants/gradient-colors'
+import { solidColors } from '@/lib/constants/solid-colors'
 
 interface TextShadow {
-  enabled: boolean;
-  color: string;
-  blur: number;
-  offsetX: number;
-  offsetY: number;
+  enabled: boolean
+  color: string
+  blur: number
+  offsetX: number
+  offsetY: number
 }
 
 export interface TextOverlay {
-  id: string;
-  text: string;
-  position: { x: number; y: number };
-  fontSize: number;
-  fontWeight: string;
-  fontFamily: string;
-  color: string;
-  opacity: number;
-  isVisible: boolean;
-  orientation: 'horizontal' | 'vertical';
-  textShadow: TextShadow;
+  id: string
+  text: string
+  position: { x: number; y: number }
+  fontSize: number
+  fontWeight: string
+  fontFamily: string
+  color: string
+  opacity: number
+  isVisible: boolean
+  orientation: 'horizontal' | 'vertical'
+  textShadow: TextShadow
 }
 
 export interface ImageBorder {
-  enabled: boolean;
-  width: number;
-  color: string;
-  type: 'none' | 'solid' | 'glassy' | 'infinite-mirror' | 'window' | 'stack' | 'ruler' | 'eclipse' | 'dotted' | 'focus';
-  theme?: 'light' | 'dark'; // For window and stack types
-  padding?: number; // For window type
-  title?: string; // For window type
-  // Legacy fields for backward compatibility
-  style?: 'solid' | 'dashed' | 'dotted' | 'double' | 'default' | 'outline' | 'border';
-  top?: boolean;
-  right?: boolean;
-  bottom?: boolean;
-  left?: boolean;
-  borderRadius?: number;
-  inset?: boolean;
+  enabled: boolean
+  width: number
+  color: string
+  type: 'none' | 'solid' | 'glassy' | 'infinite-mirror' | 'window' | 'stack' | 'ruler' | 'eclipse' | 'dotted' | 'focus'
+  theme?: 'light' | 'dark'
+  padding?: number
+  title?: string
+  style?: 'solid' | 'dashed' | 'dotted' | 'double' | 'default' | 'outline' | 'border'
+  top?: boolean
+  right?: boolean
+  bottom?: boolean
+  left?: boolean
+  borderRadius?: number
+  inset?: boolean
 }
 
 export interface ImageShadow {
-  enabled: boolean;
-  blur: number;
-  offsetX: number;
-  offsetY: number;
-  spread: number;
-  color: string;
+  enabled: boolean
+  blur: number
+  offsetX: number
+  offsetY: number
+  spread: number
+  color: string
 }
 
+// Helper function to parse gradient string and extract colors
+function parseGradientColors(gradientStr: string): { colorA: string; colorB: string; direction: number } {
+  // Default fallback
+  let colorA = '#4168d0'
+  let colorB = '#c850c0'
+  let direction = 43
+
+  try {
+    // Extract angle from linear-gradient(angle, ...)
+    const angleMatch = gradientStr.match(/linear-gradient\((\d+)deg/)
+    if (angleMatch) {
+      direction = parseInt(angleMatch[1], 10)
+    }
+
+    // Extract RGB colors
+    const rgbMatches = gradientStr.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/g)
+    if (rgbMatches && rgbMatches.length >= 2) {
+      colorA = rgbMatches[0]
+      colorB = rgbMatches[rgbMatches.length - 1]
+    } else {
+      // Try hex colors
+      const hexMatches = gradientStr.match(/#[0-9A-Fa-f]{6}/g)
+      if (hexMatches && hexMatches.length >= 2) {
+        colorA = hexMatches[0]
+        colorB = hexMatches[hexMatches.length - 1]
+      }
+    }
+  } catch (e) {
+    // Use defaults
+  }
+
+  return { colorA, colorB, direction }
+}
+
+interface EditorState {
+  // Screenshot/image state
+  screenshot: {
+    src: string | null
+    scale: number
+    offsetX: number
+    offsetY: number
+    rotation: number
+    radius: number
+  }
+  
+  // Background state (for Konva)
+  background: {
+    mode: 'solid' | 'gradient'
+    colorA: string
+    colorB: string
+    gradientDirection: number
+  }
+  
+  // Shadow state (for Konva)
+  shadow: {
+    enabled: boolean
+    elevation: number
+    side: 'bottom' | 'right' | 'bottom-right'
+    softness: number
+    color: string
+    intensity: number
+  }
+  
+  // Pattern state
+  pattern: {
+    enabled: boolean
+    type: string
+    scale: number
+    spacing: number
+    color: string
+    rotation: number
+    blur: number
+    opacity: number
+  }
+  
+  // Frame state (same as imageBorder)
+  frame: {
+    enabled: boolean
+    type: 'none' | 'solid' | 'glassy' | 'infinite-mirror' | 'window' | 'stack' | 'ruler' | 'eclipse' | 'dotted' | 'focus'
+    width: number
+    color: string
+    theme?: 'light' | 'dark'
+    padding?: number
+    title?: string
+  }
+  
+  // Canvas state
+  canvas: {
+    aspectRatio: 'square' | '4:3' | '2:1' | '3:2' | 'free'
+    padding: number
+  }
+  
+  // Noise state
+  noise: {
+    enabled: boolean
+    type: string
+    opacity: number
+  }
+  
+  // Setters
+  setScreenshot: (screenshot: Partial<EditorState['screenshot']>) => void
+  setBackground: (background: Partial<EditorState['background']>) => void
+  setShadow: (shadow: Partial<EditorState['shadow']>) => void
+  setPattern: (pattern: Partial<EditorState['pattern']>) => void
+  setFrame: (frame: Partial<EditorState['frame']>) => void
+  setCanvas: (canvas: Partial<EditorState['canvas']>) => void
+  setNoise: (noise: Partial<EditorState['noise']>) => void
+}
+
+// Create editor store
+export const useEditorStore = create<EditorState>((set, get) => ({
+  screenshot: {
+    src: null,
+    scale: 1,
+    offsetX: 0,
+    offsetY: 0,
+    rotation: 0,
+    radius: 0,
+  },
+  
+  background: {
+    mode: 'gradient',
+    colorA: '#4168d0',
+    colorB: '#c850c0',
+    gradientDirection: 43,
+  },
+  
+  shadow: {
+    enabled: false,
+    elevation: 10,
+    side: 'bottom',
+    softness: 10,
+    color: 'rgba(0, 0, 0, 0.3)',
+    intensity: 1,
+  },
+  
+  pattern: {
+    enabled: false,
+    type: 'grid',
+    scale: 1,
+    spacing: 20,
+    color: '#000000',
+    rotation: 0,
+    blur: 0,
+    opacity: 0.5,
+  },
+  
+  frame: {
+    enabled: false,
+    type: 'none',
+    width: 2,
+    color: '#000000',
+    theme: 'light',
+    padding: 20,
+    title: '',
+  },
+  
+  canvas: {
+    aspectRatio: 'free',
+    padding: 40,
+  },
+  
+  noise: {
+    enabled: false,
+    type: 'none',
+    opacity: 0.5,
+  },
+  
+  setScreenshot: (screenshot) => {
+    set((state) => ({
+      screenshot: { ...state.screenshot, ...screenshot },
+    }))
+  },
+  
+  setBackground: (background) => {
+    set((state) => ({
+      background: { ...state.background, ...background },
+    }))
+  },
+  
+  setShadow: (shadow) => {
+    set((state) => ({
+      shadow: { ...state.shadow, ...shadow },
+    }))
+  },
+  
+  setPattern: (pattern) => {
+    set((state) => ({
+      pattern: { ...state.pattern, ...pattern },
+    }))
+  },
+  
+  setFrame: (frame) => {
+    set((state) => ({
+      frame: { ...state.frame, ...frame },
+    }))
+  },
+  
+  setCanvas: (canvas) => {
+    set((state) => ({
+      canvas: { ...state.canvas, ...canvas },
+    }))
+  },
+  
+  setNoise: (noise) => {
+    set((state) => ({
+      noise: { ...state.noise, ...noise },
+    }))
+  },
+}))
+
+// Sync hook to keep editor store in sync with image store
+export function useEditorStoreSync() {
+  const imageStore = useImageStore()
+  const editorStore = useEditorStore()
+
+  // Sync when image store changes
+  React.useEffect(() => {
+    // Sync screenshot src
+    if (imageStore.uploadedImageUrl !== editorStore.screenshot.src) {
+      editorStore.setScreenshot({ src: imageStore.uploadedImageUrl })
+    }
+    
+    // Sync screenshot scale
+    if (imageStore.imageScale / 100 !== editorStore.screenshot.scale) {
+      editorStore.setScreenshot({ scale: imageStore.imageScale / 100 })
+    }
+    
+    // Sync screenshot radius
+    if (imageStore.borderRadius !== editorStore.screenshot.radius) {
+      editorStore.setScreenshot({ radius: imageStore.borderRadius })
+    }
+    
+    // Sync background
+    const bgConfig = imageStore.backgroundConfig
+    if (bgConfig.type === 'gradient') {
+      const gradientStr = gradientColors[bgConfig.value as GradientKey] || gradientColors.primary_gradient
+      const { colorA, colorB, direction } = parseGradientColors(gradientStr)
+      if (
+        editorStore.background.mode !== 'gradient' ||
+        editorStore.background.colorA !== colorA ||
+        editorStore.background.colorB !== colorB ||
+        editorStore.background.gradientDirection !== direction
+      ) {
+        editorStore.setBackground({
+          mode: 'gradient',
+          colorA,
+          colorB,
+          gradientDirection: direction,
+        })
+      }
+    } else if (bgConfig.type === 'solid') {
+      const color = (solidColors as Record<string, string>)[bgConfig.value as string] || '#ffffff'
+      if (editorStore.background.mode !== 'solid' || editorStore.background.colorA !== color) {
+        editorStore.setBackground({
+          mode: 'solid',
+          colorA: color,
+          colorB: color,
+        })
+      }
+    }
+    
+    // Sync frame
+    const frame = imageStore.imageBorder
+    if (
+      editorStore.frame.enabled !== frame.enabled ||
+      editorStore.frame.type !== frame.type ||
+      editorStore.frame.width !== frame.width ||
+      editorStore.frame.color !== frame.color ||
+      editorStore.frame.theme !== frame.theme ||
+      editorStore.frame.padding !== frame.padding ||
+      editorStore.frame.title !== frame.title
+    ) {
+      editorStore.setFrame({
+        enabled: frame.enabled,
+        type: frame.type,
+        width: frame.width,
+        color: frame.color,
+        theme: frame.theme,
+        padding: frame.padding,
+        title: frame.title,
+      })
+    }
+    
+    // Sync shadow
+    const shadow = imageStore.imageShadow
+    if (
+      editorStore.shadow.enabled !== shadow.enabled ||
+      editorStore.shadow.softness !== shadow.blur ||
+      editorStore.shadow.color !== shadow.color
+    ) {
+      editorStore.setShadow({
+        enabled: shadow.enabled,
+        softness: shadow.blur,
+        color: shadow.color,
+        elevation: Math.max(Math.abs(shadow.offsetX), Math.abs(shadow.offsetY)),
+        side: shadow.offsetX > 0 ? 'right' : shadow.offsetY > 0 ? 'bottom' : 'bottom',
+        intensity: 1,
+      })
+    }
+    
+    // Sync canvas aspect ratio
+    const aspectRatioMap: Record<AspectRatioKey, 'square' | '4:3' | '2:1' | '3:2' | 'free'> = {
+      '1_1': 'square',
+      '4_3': '4:3',
+      '2_1': '2:1',
+      '3_2': '3:2',
+      '16_9': 'free',
+      '9_16': 'free',
+      '4_5': 'free',
+      '3_4': 'free',
+      '2_3': 'free',
+      '5_4': 'free',
+      '16_10': 'free',
+    }
+    const canvasAspectRatio = aspectRatioMap[imageStore.selectedAspectRatio] || 'free'
+    if (editorStore.canvas.aspectRatio !== canvasAspectRatio) {
+      editorStore.setCanvas({ aspectRatio: canvasAspectRatio })
+    }
+  }, [
+    imageStore.uploadedImageUrl,
+    imageStore.imageScale,
+    imageStore.borderRadius,
+    imageStore.backgroundConfig,
+    imageStore.imageBorder,
+    imageStore.imageShadow,
+    imageStore.selectedAspectRatio,
+  ])
+}
+
+// Re-export existing ImageState interface and store
 interface ImageState {
-  uploadedImageUrl: string | null;
-  imageName: string | null;
-  selectedGradient: GradientKey;
-  borderRadius: number;
-  backgroundBorderRadius: number;
-  selectedAspectRatio: AspectRatioKey;
-  backgroundConfig: BackgroundConfig;
-  textOverlays: TextOverlay[];
-  imageOpacity: number;
-  imageScale: number;
-  imageBorder: ImageBorder;
-  imageShadow: ImageShadow;
-  setImage: (file: File) => void;
-  clearImage: () => void;
-  setGradient: (gradient: GradientKey) => void;
-  setBorderRadius: (radius: number) => void;
-  setBackgroundBorderRadius: (radius: number) => void;
-  setAspectRatio: (aspectRatio: AspectRatioKey) => void;
-  setBackgroundConfig: (config: BackgroundConfig) => void;
-  setBackgroundType: (type: BackgroundType) => void;
-  setBackgroundValue: (value: string) => void;
-  setBackgroundOpacity: (opacity: number) => void;
-  addTextOverlay: (overlay: Omit<TextOverlay, 'id'>) => void;
-  updateTextOverlay: (id: string, updates: Partial<TextOverlay>) => void;
-  removeTextOverlay: (id: string) => void;
-  clearTextOverlays: () => void;
-  setImageOpacity: (opacity: number) => void;
-  setImageScale: (scale: number) => void;
-  setImageBorder: (border: ImageBorder | Partial<ImageBorder>) => void;
-  setImageShadow: (shadow: ImageShadow | Partial<ImageShadow>) => void;
-  exportImage: () => Promise<void>;
+  uploadedImageUrl: string | null
+  imageName: string | null
+  selectedGradient: GradientKey
+  borderRadius: number
+  backgroundBorderRadius: number
+  selectedAspectRatio: AspectRatioKey
+  backgroundConfig: BackgroundConfig
+  textOverlays: TextOverlay[]
+  imageOpacity: number
+  imageScale: number
+  imageBorder: ImageBorder
+  imageShadow: ImageShadow
+  setImage: (file: File) => void
+  clearImage: () => void
+  setGradient: (gradient: GradientKey) => void
+  setBorderRadius: (radius: number) => void
+  setBackgroundBorderRadius: (radius: number) => void
+  setAspectRatio: (aspectRatio: AspectRatioKey) => void
+  setBackgroundConfig: (config: BackgroundConfig) => void
+  setBackgroundType: (type: BackgroundType) => void
+  setBackgroundValue: (value: string) => void
+  setBackgroundOpacity: (opacity: number) => void
+  addTextOverlay: (overlay: Omit<TextOverlay, 'id'>) => void
+  updateTextOverlay: (id: string, updates: Partial<TextOverlay>) => void
+  removeTextOverlay: (id: string) => void
+  clearTextOverlays: () => void
+  setImageOpacity: (opacity: number) => void
+  setImageScale: (scale: number) => void
+  setImageBorder: (border: ImageBorder | Partial<ImageBorder>) => void
+  setImageShadow: (shadow: ImageShadow | Partial<ImageShadow>) => void
+  exportImage: () => Promise<void>
 }
 
 export const useImageStore = create<ImageState>((set, get) => ({
   uploadedImageUrl: null,
   imageName: null,
   selectedGradient: 'primary_gradient',
-  borderRadius: 0, // Sharp edge by default
-  backgroundBorderRadius: 0, // Sharp edge by default
+  borderRadius: 0,
+  backgroundBorderRadius: 0,
   selectedAspectRatio: '16_9',
   backgroundConfig: {
     type: 'gradient',
@@ -123,79 +456,79 @@ export const useImageStore = create<ImageState>((set, get) => ({
   },
 
   setImage: (file: File) => {
-    const imageUrl = URL.createObjectURL(file);
+    const imageUrl = URL.createObjectURL(file)
     set({
       uploadedImageUrl: imageUrl,
       imageName: file.name,
-    });
+    })
   },
 
   clearImage: () => {
-    const { uploadedImageUrl } = get();
+    const { uploadedImageUrl } = get()
     if (uploadedImageUrl) {
-      URL.revokeObjectURL(uploadedImageUrl);
+      URL.revokeObjectURL(uploadedImageUrl)
     }
     set({
       uploadedImageUrl: null,
       imageName: null,
-    });
+    })
   },
 
   setGradient: (gradient: GradientKey) => {
-    set({ selectedGradient: gradient });
+    set({ selectedGradient: gradient })
   },
 
   setBorderRadius: (radius: number) => {
-    set({ borderRadius: radius });
+    set({ borderRadius: radius })
   },
 
   setBackgroundBorderRadius: (radius: number) => {
-    set({ backgroundBorderRadius: radius });
+    set({ backgroundBorderRadius: radius })
   },
 
   setAspectRatio: (aspectRatio: AspectRatioKey) => {
-    set({ selectedAspectRatio: aspectRatio });
+    set({ selectedAspectRatio: aspectRatio })
   },
 
   setBackgroundConfig: (config: BackgroundConfig) => {
-    set({ backgroundConfig: config });
+    set({ backgroundConfig: config })
   },
 
   setBackgroundType: (type: BackgroundType) => {
-    const { backgroundConfig } = get();
+    const { backgroundConfig } = get()
     set({
       backgroundConfig: {
         ...backgroundConfig,
         type,
       },
-    });
+    })
   },
 
   setBackgroundValue: (value: string) => {
-    const { backgroundConfig } = get();
+    const { backgroundConfig } = get()
     set({
       backgroundConfig: {
         ...backgroundConfig,
         value,
       },
-    });
+    })
   },
 
   setBackgroundOpacity: (opacity: number) => {
-    const { backgroundConfig } = get();
+    const { backgroundConfig } = get()
     set({
       backgroundConfig: {
         ...backgroundConfig,
         opacity,
       },
-    });
+    })
   },
 
   addTextOverlay: (overlay) => {
-    const id = `text-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const id = `text-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     set((state) => ({
       textOverlays: [...state.textOverlays, { ...overlay, id }],
-    }));
+    }))
   },
 
   updateTextOverlay: (id, updates) => {
@@ -203,54 +536,53 @@ export const useImageStore = create<ImageState>((set, get) => ({
       textOverlays: state.textOverlays.map((overlay) =>
         overlay.id === id ? { ...overlay, ...updates } : overlay
       ),
-    }));
+    }))
   },
 
   removeTextOverlay: (id) => {
     set((state) => ({
       textOverlays: state.textOverlays.filter((overlay) => overlay.id !== id),
-    }));
+    }))
   },
 
   clearTextOverlays: () => {
-    set({ textOverlays: [] });
+    set({ textOverlays: [] })
   },
 
   setImageOpacity: (opacity: number) => {
-    set({ imageOpacity: opacity });
+    set({ imageOpacity: opacity })
   },
 
   setImageScale: (scale: number) => {
-    set({ imageScale: scale });
+    set({ imageScale: scale })
   },
 
   setImageBorder: (border: ImageBorder | Partial<ImageBorder>) => {
-    const currentBorder = get().imageBorder;
+    const currentBorder = get().imageBorder
     set({
       imageBorder: {
         ...currentBorder,
         ...border,
       },
-    });
+    })
   },
 
   setImageShadow: (shadow: ImageShadow | Partial<ImageShadow>) => {
-    const currentShadow = get().imageShadow;
+    const currentShadow = get().imageShadow
     set({
       imageShadow: {
         ...currentShadow,
         ...shadow,
       },
-    });
+    })
   },
 
   exportImage: async () => {
     try {
-      // Target the image render card element
-      await exportImageWithGradient('image-render-card');
+      await exportImageWithGradient('image-render-card')
     } catch (error) {
-      console.error('Export failed:', error);
-      throw error;
+      console.error('Export failed:', error)
+      throw error
     }
   },
-}));
+}))

@@ -398,7 +398,7 @@ export function BorderControls() {
 
         )}
 
-        {['solid', 'dotted', 'eclipse', 'ruler', 'focus'].includes(imageBorder.type) && (
+        {['solid', 'glassy', 'dotted', 'eclipse', 'ruler', 'focus'].includes(imageBorder.type) && (
 
           <div>
 
