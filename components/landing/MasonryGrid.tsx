@@ -1,17 +1,19 @@
 "use client";
 
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { demoImageMapping } from "@/lib/cloudinary-demo-images";
+import { demoImagePublicIds } from "@/lib/cloudinary-demo-images";
 
 interface MasonryItem {
   id: number;
   image: string;
+  alt: string;
 }
 
-// Use demo image Cloudinary public IDs from mapping
-const sampleItems: MasonryItem[] = Object.values(demoImageMapping).map((publicId, index) => ({
+// Use demo image Cloudinary public IDs directly
+const sampleItems: MasonryItem[] = demoImagePublicIds.map((publicId, index) => ({
   id: index + 1,
   image: publicId,
+  alt: `Gallery image ${index + 1}`,
 }));
 
 export function MasonryGrid() {
@@ -26,7 +28,7 @@ export function MasonryGrid() {
             >
               <OptimizedImage
                 src={item.image}
-                alt={`Gallery image ${item.id}`}
+                alt={item.alt}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
