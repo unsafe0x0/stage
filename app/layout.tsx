@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     description: "Create stunning showcase images for your projects with customizable templates and layouts",
     images: [
       {
-        url: "/og.png",
+        url: "https://stage-psi-one.vercel.app/og.png",
         width: 1200,
         height: 630,
         alt: "Stage - Image Showcase Builder",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Stage - Image Showcase Builder",
     description: "Create stunning showcase images for your projects with customizable templates and layouts",
-    images: ["/og.png"],
+    images: ["https://stage-psi-one.vercel.app/og.png"],
     creator: "@stage",
   },
   robots: {

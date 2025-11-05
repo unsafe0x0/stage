@@ -15,7 +15,7 @@ export function Navigation({
   ctaHref = "/home" 
 }: NavigationProps) {
   return (
-    <nav className="w-full border-b border-border backdrop-blur bg-background">
+    <nav className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-xl supports-backdrop-filter:bg-background/90">
       <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center">
           <Image 

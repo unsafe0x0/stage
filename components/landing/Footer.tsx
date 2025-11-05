@@ -18,16 +18,6 @@ export function Footer({
           <p className="text-xs sm:text-sm text-muted-foreground">
             © {new Date().getFullYear()} {brandName}. {additionalText}
           </p>
-          <a
-            href="https://github.com/KartikLabhshetwar/stage"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="GitHub repository"
-          >
-            <FaGithub className="h-4 w-4 text-current" />
-            <span>View on GitHub</span>
-          </a>
         </div>
       </div>
     </footer>
