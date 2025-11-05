@@ -1,25 +1,35 @@
 "use client";
 
 import * as React from "react";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { SidebarLeft } from "./sidebar-left";
+import { EditorLeftPanel } from "./editor-left-panel";
+import { EditorRightPanel } from "./editor-right-panel";
 import { EditorContent } from "./EditorContent";
 import { EditorCanvas } from "@/components/canvas/EditorCanvas";
 import { EditorStoreSync } from "@/components/canvas/EditorStoreSync";
+import { EditorBottomBar } from "./editor-bottom-bar";
 
 function EditorMain() {
   return (
-    <SidebarProvider defaultOpen={true} className="h-screen overflow-hidden">
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       <EditorStoreSync />
-      <SidebarLeft />
-      <SidebarInset>
-        <div className="h-screen flex flex-col bg-background overflow-hidden">
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Panel */}
+        <EditorLeftPanel />
+        
+        {/* Center Canvas */}
+        <div className="flex-1 flex flex-col overflow-hidden bg-white">
           <EditorContent>
             <EditorCanvas />
           </EditorContent>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+        
+        {/* Right Panel */}
+        <EditorRightPanel />
+      </div>
+      
+      {/* Bottom Bar */}
+      <EditorBottomBar />
+    </div>
   );
 }
 

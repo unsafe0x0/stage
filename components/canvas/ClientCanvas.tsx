@@ -37,6 +37,10 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
   // Load background image if type is 'image'
   const [bgImage, setBgImage] = useState<HTMLImageElement | null>(null)
   
+  // Get container dimensions early for use in useEffect
+  const containerWidth = responsiveDimensions.width
+  const containerHeight = responsiveDimensions.height
+  
   useEffect(() => {
     if (backgroundConfig.type === 'image' && backgroundConfig.value) {
       const imageValue = backgroundConfig.value as string
@@ -70,12 +74,15 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
         const { getCldImageUrl } = require('@/lib/cloudinary')
         const { cloudinaryPublicIds } = require('@/lib/cloudinary-backgrounds')
         if (cloudinaryPublicIds.includes(imageUrl)) {
+          // Use container dimensions for better quality
           imageUrl = getCldImageUrl({
             src: imageUrl,
-            width: 1920,
-            height: 1080,
+            width: Math.max(containerWidth, 1920),
+            height: Math.max(containerHeight, 1080),
             quality: 'auto',
             format: 'auto',
+            crop: 'fill',
+            gravity: 'auto',
           })
         } else {
           // Invalid image value, don't try to load
@@ -88,7 +95,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
     } else {
       setBgImage(null)
     }
-  }, [backgroundConfig])
+  }, [backgroundConfig, containerWidth, containerHeight])
   
   useEffect(() => {
     const updateViewportSize = () => {
@@ -144,44 +151,34 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
   /* ─────────────────── layout helpers ─────────────────── */
   const imageAspect = image.naturalWidth / image.naturalHeight
   
-  // Use responsive dimensions for container
-  const containerWidth = responsiveDimensions.width
-  const containerHeight = responsiveDimensions.height
-  
-  // Calculate canvas aspect ratio from selected aspect ratio
-  const canvasAspect =
-    canvas.aspectRatio === 'square'
-      ? 1
-      : canvas.aspectRatio === '4:3'
-      ? 4 / 3
-      : canvas.aspectRatio === '2:1'
-      ? 2
-      : canvas.aspectRatio === '3:2'
-      ? 3 / 2
-      : imageAspect // fallback: free
+  // Calculate canvas aspect ratio from selected aspect ratio using responsive dimensions
+  const canvasAspect = containerWidth / containerHeight
 
   // Calculate content area (image area without padding)
-  // Use viewport-aware dimensions
+  // Use viewport-aware dimensions, respecting the selected aspect ratio
   const availableWidth = Math.min(viewportSize.width * 0.8, containerWidth)
   const availableHeight = Math.min(viewportSize.height * 0.7, containerHeight)
   
-  let contentW, contentH
-  if (imageAspect > canvasAspect) {
-    contentW = Math.min(availableWidth - canvas.padding * 2, image.naturalWidth)
-    contentH = contentW / canvasAspect
+  // Calculate canvas dimensions that maintain the selected aspect ratio
+  let canvasW, canvasH
+  if (availableWidth / availableHeight > canvasAspect) {
+    // Height is the limiting factor
+    canvasH = availableHeight - canvas.padding * 2
+    canvasW = canvasH * canvasAspect
   } else {
-    contentH = Math.min(availableHeight - canvas.padding * 2, image.naturalHeight)
-    contentW = contentH * canvasAspect
+    // Width is the limiting factor
+    canvasW = availableWidth - canvas.padding * 2
+    canvasH = canvasW / canvasAspect
   }
 
   // Ensure reasonable dimensions
   const minContentSize = 300
-  contentW = Math.max(contentW, minContentSize)
-  contentH = Math.max(contentH, minContentSize)
+  canvasW = Math.max(canvasW, minContentSize)
+  canvasH = Math.max(canvasH, minContentSize)
 
-  // Canvas dimensions (with padding)
-  const canvasW = contentW + canvas.padding * 2
-  const canvasH = contentH + canvas.padding * 2
+  // Content dimensions (without padding)
+  const contentW = canvasW - canvas.padding * 2
+  const contentH = canvasH - canvas.padding * 2
 
   useEffect(() => {
     if (patternRectRef.current) {
@@ -387,44 +384,38 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
 
   /* ─────────────────── render ─────────────────── */
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="w-full flex items-center justify-center">
+    <div
+      ref={containerRef}
+      id="image-render-card"
+      className="flex items-center justify-center relative overflow-hidden"
+      style={{
+        width: '100%',
+        maxWidth: `${containerWidth}px`,
+        aspectRatio: responsiveDimensions.aspectRatio,
+        maxHeight: '90vh',
+        backgroundColor: 'transparent',
+        padding: '24px',
+      }}
+    >
+      <div
+        style={{
+          position: 'relative',
+          width: `${canvasW}px`,
+          height: `${canvasH}px`,
+          minWidth: `${canvasW}px`,
+          minHeight: `${canvasH}px`,
+        }}
+      >
         <div
-          ref={containerRef}
-          id="image-render-card"
-          className="overflow-hidden shadow-2xl flex items-center justify-center relative"
           style={{
-            ...backgroundStyle,
-            width: '100%',
-            maxWidth: `${containerWidth}px`,
-            aspectRatio: responsiveDimensions.aspectRatio,
-            maxHeight: '90vh',
-            borderRadius: `${backgroundBorderRadius}px`,
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            zIndex: 20,
           }}
         >
-        <div className="w-full h-full flex items-center justify-center relative z-10 p-6">
-          <div
-            style={{
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: `${canvasW}px`,
-              height: `${canvasH}px`,
-              minWidth: `${canvasW}px`,
-              minHeight: `${canvasH}px`,
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                pointerEvents: 'none',
-                zIndex: 20,
-              }}
-            >
-              <TextOverlayRenderer />
-            </div>
+          <TextOverlayRenderer />
+        </div>
             <Stage
               width={canvasW}
               height={canvasH}
@@ -435,6 +426,51 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
                 backgroundColor: 'transparent',
               }}
             >
+          {/* Background Layer - Render gradient/solid backgrounds in Konva for proper rendering */}
+          <Layer>
+            {(backgroundConfig.type === 'gradient' || backgroundConfig.type === 'solid') && (
+              <Rect
+                x={0}
+                y={0}
+                width={canvasW}
+                height={canvasH}
+                cornerRadius={backgroundBorderRadius}
+                shadowColor="rgba(0, 0, 0, 0.15)"
+                shadowBlur={20}
+                shadowOffsetX={0}
+                shadowOffsetY={4}
+                shadowOpacity={1}
+                stroke="#e5e7eb"
+                strokeWidth={1}
+                {...backgroundProps}
+              />
+            )}
+            
+            {/* Image background */}
+            {backgroundConfig.type === 'image' && bgImage && (
+              <Rect
+                x={0}
+                y={0}
+                width={canvasW}
+                height={canvasH}
+                fillPatternImage={bgImage}
+                fillPatternRepeat="no-repeat"
+                fillPatternScaleX={canvasW / bgImage.width}
+                fillPatternScaleY={canvasH / bgImage.height}
+                fillPatternOffsetX={0}
+                fillPatternOffsetY={0}
+                cornerRadius={backgroundBorderRadius}
+                shadowColor="rgba(0, 0, 0, 0.15)"
+                shadowBlur={20}
+                shadowOffsetX={0}
+                shadowOffsetY={4}
+                shadowOpacity={1}
+                stroke="#e5e7eb"
+                strokeWidth={1}
+              />
+            )}
+          </Layer>
+
           <Layer>
             {patternImage && (
               <Rect
@@ -763,10 +799,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
             </Group>
           </Layer>
         </Stage>
-          </div>
-        </div>
       </div>
-    </div>
     </div>
   )
 }

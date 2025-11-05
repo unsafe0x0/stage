@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { GlassInputWrapper } from '@/components/ui/glass-input-wrapper';
 import { useImageStore } from '@/lib/store';
-import { Plus, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff, CloudUpload } from 'lucide-react';
 import { fontFamilies, getAvailableFontWeights } from '@/lib/constants/fonts';
 
 export const TextOverlayControls = () => {
@@ -168,21 +168,28 @@ export const TextOverlayControls = () => {
         </Button>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex gap-2">
-          <GlassInputWrapper className="flex-1">
-            <Input
-              placeholder="Enter text..."
-              value={newText}
-              onChange={(e) => setNewText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddText()}
-              className="border-0 bg-transparent text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </GlassInputWrapper>
-          <Button size="sm" onClick={handleAddText} disabled={!newText.trim()} className="h-9 w-9 rounded-lg">
-            <Plus className="h-4 w-4" />
-          </Button>
+      <div className="space-y-3">
+        <Input
+          placeholder="Enter text..."
+          value={newText}
+          onChange={(e) => setNewText(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleAddText()}
+          className="h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
+        />
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-px bg-gray-200"></div>
+          <span className="text-xs text-gray-500">or</span>
+          <div className="flex-1 h-px bg-gray-200"></div>
         </div>
+        <Button
+          onClick={handleAddText}
+          disabled={!newText.trim()}
+          variant="outline"
+          className="w-full h-10 rounded-xl border-gray-300 hover:bg-gray-50 text-gray-700 gap-2"
+        >
+          <CloudUpload className="size-4" />
+          <span>Upload Image</span>
+        </Button>
       </div>
 
       {textOverlays.length > 0 && (
@@ -194,10 +201,10 @@ export const TextOverlayControls = () => {
             {textOverlays.map((overlay) => (
               <div
                 key={overlay.id}
-                className={`flex items-center gap-2 p-2 rounded border cursor-pointer transition-colors ${
+                className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition-colors ${
                   selectedOverlayId === overlay.id
-                    ? 'bg-accent border-accent-foreground'
-                    : 'bg-background hover:bg-accent/50'
+                    ? 'bg-gray-100 border-gray-300'
+                    : 'bg-white hover:bg-gray-50 border-gray-200'
                 }`}
                 onClick={() => setSelectedOverlayId(overlay.id)}
               >
@@ -244,40 +251,35 @@ export const TextOverlayControls = () => {
               {`Edit: "${selectedOverlay.text}"`}
             </p>
 
-            <GlassInputWrapper>
-              <Input
-                placeholder="Edit text..."
-                value={selectedOverlay.text}
-                onChange={(e) => handleUpdateText(e.target.value)}
-                className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-            </GlassInputWrapper>
+            <Input
+              placeholder="Edit text..."
+              value={selectedOverlay.text}
+              onChange={(e) => handleUpdateText(e.target.value)}
+              className="h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
+            />
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <Input
                 type="color"
                 value={selectedOverlay.color}
                 onChange={(e) => handleUpdateColor(e.target.value)}
-                className="w-12 h-10 p-1 rounded-lg border border-border"
+                className="w-12 h-12 rounded-xl border border-gray-300 cursor-pointer"
               />
-              <GlassInputWrapper className="flex-1">
-                <Input
-                  placeholder="#ffffff"
-                  value={selectedOverlay.color}
-                  onChange={(e) => handleUpdateColor(e.target.value)}
-                  className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </GlassInputWrapper>
+              <Input
+                placeholder="#ffffff"
+                value={selectedOverlay.color}
+                onChange={(e) => handleUpdateColor(e.target.value)}
+                className="flex-1 h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200 font-mono text-sm"
+              />
             </div>
 
-            <GlassInputWrapper intensity="default">
-              <Select
-                value={selectedOverlay.fontFamily}
-                onValueChange={handleUpdateFontFamily}
-              >
-                <SelectTrigger className="w-full border-0 bg-transparent">
-                  <SelectValue placeholder="Font family" />
-                </SelectTrigger>
+            <Select
+              value={selectedOverlay.fontFamily}
+              onValueChange={handleUpdateFontFamily}
+            >
+              <SelectTrigger className="w-full h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200">
+                <SelectValue placeholder="Font family" />
+              </SelectTrigger>
                 <SelectContent>
                   {fontFamilies.map((font) => (
                     <SelectItem key={font.id} value={font.id}>
@@ -286,45 +288,43 @@ export const TextOverlayControls = () => {
                   ))}
                 </SelectContent>
               </Select>
-            </GlassInputWrapper>
+            </div>
 
-            <GlassInputWrapper intensity="default">
-              <Select
-                value={selectedOverlay.fontWeight}
-                onValueChange={handleUpdateFontWeight}
-              >
-                <SelectTrigger className="w-full border-0 bg-transparent">
-                  <SelectValue placeholder="Font weight" />
-                </SelectTrigger>
-                <SelectContent>
-                  {getAvailableFontWeights(selectedOverlay.fontFamily).map(
-                    (weight) => (
-                      <SelectItem key={weight} value={weight}>
-                        {weight === 'normal'
-                          ? 'Normal'
-                          : weight === 'bold'
-                            ? 'Bold'
-                            : weight === '100'
-                              ? 'Thin (100)'
-                              : weight === '300'
-                                ? 'Light (300)'
-                                : weight === '500'
-                                  ? 'Medium (500)'
-                                  : weight === '600'
-                                    ? 'Semi Bold (600)'
-                                    : weight === '700'
-                                      ? 'Bold (700)'
-                                      : weight === '800'
-                                        ? 'Extra Bold (800)'
-                                        : weight === '900'
-                                          ? 'Black (900)'
-                                          : weight}
-                      </SelectItem>
-                    )
-                  )}
-                </SelectContent>
-              </Select>
-            </GlassInputWrapper>
+            <Select
+              value={selectedOverlay.fontWeight}
+              onValueChange={handleUpdateFontWeight}
+            >
+              <SelectTrigger className="w-full h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200">
+                <SelectValue placeholder="Font weight" />
+              </SelectTrigger>
+              <SelectContent>
+                {getAvailableFontWeights(selectedOverlay.fontFamily).map(
+                  (weight) => (
+                    <SelectItem key={weight} value={weight}>
+                      {weight === 'normal'
+                        ? 'Normal'
+                        : weight === 'bold'
+                          ? 'Bold'
+                          : weight === '100'
+                            ? 'Thin (100)'
+                            : weight === '300'
+                              ? 'Light (300)'
+                              : weight === '500'
+                                ? 'Medium (500)'
+                                : weight === '600'
+                                  ? 'Semi Bold (600)'
+                                  : weight === '700'
+                                    ? 'Bold (700)'
+                                    : weight === '800'
+                                      ? 'Extra Bold (800)'
+                                      : weight === '900'
+                                        ? 'Black (900)'
+                                        : weight}
+                    </SelectItem>
+                  )
+                )}
+              </SelectContent>
+            </Select>
 
             <p className="text-xs text-muted-foreground">
               {getAvailableFontWeights(selectedOverlay.fontFamily).length}{' '}
@@ -335,23 +335,21 @@ export const TextOverlayControls = () => {
               available
             </p>
 
-            <GlassInputWrapper intensity="default">
-              <Select
-                value={selectedOverlay.orientation}
-                onValueChange={handleUpdateOrientation}
-              >
-                <SelectTrigger className="w-full border-0 bg-transparent">
-                  <SelectValue placeholder="Text orientation" />
-                </SelectTrigger>
+            <Select
+              value={selectedOverlay.orientation}
+              onValueChange={handleUpdateOrientation}
+            >
+              <SelectTrigger className="w-full h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200">
+                <SelectValue placeholder="Text orientation" />
+              </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="horizontal">Horizontal</SelectItem>
                   <SelectItem value="vertical">Vertical</SelectItem>
                 </SelectContent>
               </Select>
-            </GlassInputWrapper>
 
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
-              <span className="text-sm font-medium text-foreground whitespace-nowrap">Font Size</span>
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
+              <span className="text-sm font-medium text-gray-900 whitespace-nowrap">Font Size</span>
               <div className="flex-1 flex items-center gap-3">
                 <Slider
                   value={[selectedOverlay.fontSize]}
@@ -364,8 +362,8 @@ export const TextOverlayControls = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
-              <span className="text-sm font-medium text-foreground whitespace-nowrap">Opacity</span>
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
+              <span className="text-sm font-medium text-gray-900 whitespace-nowrap">Opacity</span>
               <div className="flex-1 flex items-center gap-3">
                 <Slider
                   value={[selectedOverlay.opacity]}
@@ -511,7 +509,6 @@ export const TextOverlayControls = () => {
               </div>
             </div>
           </div>
-        </div>
       )}
     </div>
   );
