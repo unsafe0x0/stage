@@ -5,6 +5,7 @@ import { Footer } from "./Footer";
 import { MasonryGrid } from "./MasonryGrid";
 import { Pricing } from "./Pricing";
 import { FAQ } from "./FAQ";
+import { SponsorButton } from "@/components/SponsorButton";
 
 interface Feature {
   title: string;
@@ -49,6 +50,7 @@ export function LandingPage({
       {/* <Pricing /> */}
       <FAQ />
       <Footer brandName={brandName}/>
+      <SponsorButton variant="floating" />
     </div>
   );
 }

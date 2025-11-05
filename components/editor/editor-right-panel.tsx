@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useImageStore } from '@/lib/store';
 import { AspectRatioDropdown } from '@/components/aspect-ratio/aspect-ratio-dropdown';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Maximize2 } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { aspectRatios } from '@/lib/constants/aspect-ratios';
 import { useDropzone } from 'react-dropzone';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/constants';
@@ -87,11 +87,8 @@ export function EditorRightPanel() {
           <>
             {/* Aspect Ratio */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center">
                 <span className="text-xs font-medium text-muted-foreground">Aspect Ratio</span>
-                <button className="p-1 rounded hover:bg-accent">
-                  <Maximize2 className="size-3.5 text-muted-foreground" />
-                </button>
               </div>
               {selectedRatio && (
                 <div className="text-xs text-muted-foreground">
