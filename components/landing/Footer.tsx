@@ -1,6 +1,6 @@
 "use client";
 
-import { GithubLogo } from "@phosphor-icons/react";
+import { FaGithub } from "react-icons/fa";
 
 interface FooterProps {
   brandName?: string;
@@ -25,7 +25,7 @@ export function Footer({
             className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors"
             aria-label="GitHub repository"
           >
-            <GithubLogo className="h-4 w-4 text-current" weight="fill" />
+            <FaGithub className="h-4 w-4 text-current" />
             <span>View on GitHub</span>
           </a>
         </div>

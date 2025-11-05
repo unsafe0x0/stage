@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { GithubLogo } from "@phosphor-icons/react";
+import { FaGithub } from "react-icons/fa";
 
 interface NavigationProps {
   ctaLabel?: string;
@@ -34,7 +34,7 @@ export function Navigation({
             className="p-2 hover:bg-accent rounded-lg transition-colors touch-manipulation text-muted-foreground hover:text-foreground"
             aria-label="GitHub repository"
           >
-            <GithubLogo className="h-5 w-5 text-current" weight="fill" />
+            <FaGithub className="h-5 w-5 text-current" />
           </a>
           <Link href={ctaHref}>
             <Button className="bg-blue-600 text-white hover:bg-blue-700 text-sm px-3 sm:px-4 py-2 touch-manipulation">

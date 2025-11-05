@@ -5,7 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/constants';
-import { CloudArrowUp, X } from '@phosphor-icons/react';
+import { FaCloudUploadAlt, FaTimes } from 'react-icons/fa';
 import { cn } from '@/lib/utils';
 
 interface ImageUploadSimpleProps {
@@ -91,7 +91,7 @@ export function ImageUploadSimple({ onImageUpload, className }: ImageUploadSimpl
             )}
           >
             <input {...getInputProps()} />
-            <CloudArrowUp className="mx-auto mb-4 text-gray-400" size={48} weight="regular" />
+            <FaCloudUploadAlt className="mx-auto mb-4 text-gray-400" size={48} />
             {isDragActive ? (
               <p className="text-sm">Drop the image here...</p>
             ) : (
@@ -119,7 +119,7 @@ export function ImageUploadSimple({ onImageUpload, className }: ImageUploadSimpl
                 className="absolute top-2 right-2"
                 onClick={removeImage}
               >
-                <X size={16} weight="regular" />
+                <FaTimes size={16} />
               </Button>
             </div>
             {uploadedFile && (

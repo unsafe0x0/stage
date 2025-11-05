@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useDropzone } from "react-dropzone";
-import { ImageSquare as ImageIcon } from "@phosphor-icons/react";
+import { FaImage } from "react-icons/fa";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -123,8 +123,8 @@ export function UploadArea({ onUpload, error, className }: UploadAreaProps) {
               active ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <ImageIcon size={48} weight="duotone" className="sm:hidden" />
-            <ImageIcon size={56} weight="duotone" className="hidden sm:block" />
+            <FaImage size={48} className="sm:hidden" />
+            <FaImage size={56} className="hidden sm:block" />
           </div>
 
           {active ? (

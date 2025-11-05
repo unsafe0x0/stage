@@ -7,7 +7,7 @@ import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Trash, FolderOpen, CircleNotch } from "@phosphor-icons/react";
+import { FaTrash, FaFolderOpen, FaSpinner } from "react-icons/fa";
 
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
@@ -133,7 +133,7 @@ export function DesignsGallery() {
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <CircleNotch className="w-8 h-8 animate-spin text-gray-400" />
+            <FaSpinner className="w-8 h-8 animate-spin text-gray-400" />
           </div>
         ) : designs.length === 0 ? (
           <div className="flex items-center justify-center min-h-[60vh] px-4">
@@ -142,7 +142,7 @@ export function DesignsGallery() {
                 <div className="relative mb-6">
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full blur-xl opacity-60"></div>
                   <div className="relative bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full p-6">
-                    <FolderOpen className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600" weight="duotone" />
+                    <FaFolderOpen className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600" />
                   </div>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-3">
@@ -177,7 +177,7 @@ export function DesignsGallery() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <FolderOpen className="w-10 h-10 sm:w-12 sm:h-12" />
+                      <FaFolderOpen className="w-10 h-10 sm:w-12 sm:h-12" />
                     </div>
                   )}
                 </div>
@@ -203,12 +203,12 @@ export function DesignsGallery() {
                     >
                       {loadingDesignId === design.id ? (
                         <>
-                          <CircleNotch className="w-3 h-3 sm:w-4 sm:h-4 mr-1 animate-spin" />
+                          <FaSpinner className="w-3 h-3 sm:w-4 sm:h-4 mr-1 animate-spin" />
                           Loading...
                         </>
                       ) : (
                         <>
-                          <FolderOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                          <FaFolderOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                           Load
                         </>
                       )}
@@ -223,7 +223,7 @@ export function DesignsGallery() {
                       disabled={loadingDesignId === design.id || deleting}
                       className="touch-manipulation min-h-[36px] px-2 sm:px-3"
                     >
-                      <Trash className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <FaTrash className="w-3 h-3 sm:w-4 sm:h-4" />
                     </Button>
                   </div>
                 </div>

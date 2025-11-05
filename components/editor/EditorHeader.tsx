@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { GithubLogo } from "@phosphor-icons/react";
+import { FaGithub } from "react-icons/fa";
 import { cn } from "@/lib/utils";
 
 interface EditorHeaderProps {
@@ -47,7 +47,7 @@ export function EditorHeader({ className }: EditorHeaderProps) {
               )}
               aria-label="GitHub repository"
             >
-              <GithubLogo className="h-5 w-5 sm:h-5 sm:w-5 text-current" weight="fill" />
+              <FaGithub className="h-5 w-5 sm:h-5 sm:w-5 text-current" />
             </a>
           </div>
         </div>

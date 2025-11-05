@@ -14,7 +14,7 @@ import { getCldImageUrl } from '@/lib/cloudinary';
 import { backgroundCategories, getAvailableCategories, cloudinaryPublicIds } from '@/lib/cloudinary-backgrounds';
 import { useDropzone } from 'react-dropzone';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/constants';
-import { ImageSquare as ImageIcon, Crop, PaintBrush, TextT, X } from '@phosphor-icons/react';
+import { FaImage, FaTimes } from 'react-icons/fa';
 import { aspectRatios } from '@/lib/constants/aspect-ratios';
 import { BorderControls } from '@/components/controls/BorderControls';
 import { ShadowControls } from '@/components/controls/ShadowControls';
@@ -299,7 +299,7 @@ export function StyleTabs() {
                               }
                             }}
                           >
-                            <X size={14} weight="bold" />
+                            <FaTimes size={14} />
                             <span className="text-xs font-medium">Remove</span>
                           </Button>
                         </>
@@ -382,7 +382,7 @@ export function StyleTabs() {
                 >
                   <input {...getBgInputProps()} />
                   <div className={`mb-3 transition-colors flex items-center justify-center w-full ${isBgDragActive ? 'text-gray-900' : 'text-gray-400'}`}>
-                    <ImageIcon size={40} weight="duotone" />
+                    <FaImage size={40} />
                   </div>
                   {isBgDragActive ? (
                     <p className="text-sm font-medium text-gray-900 text-center">Drop the image here...</p>
