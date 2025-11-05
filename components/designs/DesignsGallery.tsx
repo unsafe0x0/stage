@@ -123,32 +123,32 @@ export function DesignsGallery() {
       <Navigation ctaLabel="Editor" ctaHref="/home" />
       <div className="flex-1 container mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12">
         <div className="mb-6 sm:mb-8">
-          <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 px-2 sm:px-0 ${instrumentSerif.className}`}>
+          <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 px-2 sm:px-0 ${instrumentSerif.className}`}>
             My Designs
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">
+          <p className="text-sm sm:text-base text-muted-foreground px-2 sm:px-0">
             Manage and load your saved designs
           </p>
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <FaSpinner className="w-8 h-8 animate-spin text-gray-400" />
+            <FaSpinner className="w-8 h-8 animate-spin text-muted-foreground" />
           </div>
         ) : designs.length === 0 ? (
           <div className="flex items-center justify-center min-h-[60vh] px-4">
-            <Card className="p-8 sm:p-12 md:p-16 text-center max-w-md w-full border shadow-lg bg-white/80 backdrop-blur-sm">
+            <Card className="p-8 sm:p-12 md:p-16 text-center max-w-md w-full border shadow-lg bg-card/80 backdrop-blur-sm">
               <div className="flex flex-col items-center">
                 <div className="relative mb-6">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full blur-xl opacity-60"></div>
-                  <div className="relative bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full p-6">
-                    <FaFolderOpen className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/30 rounded-full blur-xl opacity-60"></div>
+                  <div className="relative bg-gradient-to-br from-primary/10 to-primary/20 rounded-full p-6">
+                    <FaFolderOpen className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
                   </div>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-3">
+                <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-3">
                   No designs yet
                 </h3>
-                <p className="text-sm sm:text-base text-gray-600 mb-8 leading-relaxed max-w-sm mx-auto">
+                <p className="text-sm sm:text-base text-muted-foreground mb-8 leading-relaxed max-w-sm mx-auto">
                   Start creating and save your designs to see them here. Your saved work will appear in this gallery for easy access.
                 </p>
                 <Button 
@@ -168,7 +168,7 @@ export function DesignsGallery() {
                 key={design.id}
                 className="overflow-hidden hover:shadow-lg transition-shadow border-0"
               >
-                <div className="aspect-video relative bg-gray-100">
+                <div className="aspect-video relative bg-muted">
                   {design.previewUrl ? (
                     <img
                       src={design.previewUrl}
@@ -176,21 +176,21 @@ export function DesignsGallery() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                       <FaFolderOpen className="w-10 h-10 sm:w-12 sm:h-12" />
                     </div>
                   )}
                 </div>
                 <div className="p-3 sm:p-4">
-                  <h3 className="font-semibold text-sm sm:text-base text-gray-900 mb-1 truncate">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground mb-1 truncate">
                     {design.name}
                   </h3>
                   {design.description && (
-                    <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-2">
                       {design.description}
                     </p>
                   )}
-                  <p className="text-xs text-gray-500 mb-3 sm:mb-4">
+                  <p className="text-xs text-muted-foreground mb-3 sm:mb-4">
                     Updated {formatDate(design.updatedAt)}
                   </p>
                   <div className="flex gap-2">

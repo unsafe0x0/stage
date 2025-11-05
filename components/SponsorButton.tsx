@@ -100,12 +100,12 @@ function SponsorContent({
         href="https://buymeacoffee.com/code_kartik"
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+        className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors cursor-pointer group"
       >
         <div className="h-10 w-10 rounded-lg bg-yellow-400 flex items-center justify-center shrink-0">
           <FaCoffee className="h-5 w-5 text-white" />
         </div>
-        <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+        <span className="text-sm font-medium text-foreground group-hover:text-foreground">
           Buy Me Coffee
         </span>
       </a>
@@ -115,37 +115,37 @@ function SponsorContent({
         href="https://wise.com/pay/r/Zlc3_90igqVqILo"
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+        className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors cursor-pointer group"
       >
         <div className="h-10 w-10 rounded-lg bg-blue-500 flex items-center justify-center shrink-0">
           <FaDollarSign className="h-5 w-5 text-white" />
         </div>
-        <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+        <span className="text-sm font-medium text-foreground group-hover:text-foreground">
           Wise
         </span>
       </a>
 
       {/* UPI Payment */}
-      <div className="p-3 rounded-lg border border-gray-200 bg-gray-50">
+      <div className="p-3 rounded-lg border border-border bg-muted">
         <div className="flex items-center gap-3 mb-3">
           <div className="h-10 w-10 rounded-lg bg-green-500 flex items-center justify-center shrink-0">
             <FaMobileAlt className="h-5 w-5 text-white" />
           </div>
           <div className="flex-1">
-            <span className="text-sm font-medium text-gray-700 block">
+            <span className="text-sm font-medium text-foreground block">
               UPI Payment
             </span>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-gray-500">Scan QR or copy UPI ID</span>
+              <span className="text-xs text-muted-foreground">Scan QR or copy UPI ID</span>
               <button
                 onClick={onCopy}
-                className="p-1 hover:bg-gray-200 rounded transition-colors"
+                className="p-1 hover:bg-accent rounded transition-colors"
                 aria-label="Copy UPI ID"
               >
                 {copied ? (
-                  <FaCheck className="h-3 w-3 text-green-600" />
+                  <FaCheck className="h-3 w-3 text-green-500" />
                 ) : (
-                  <FaCopy className="h-3 w-3 text-gray-400" />
+                  <FaCopy className="h-3 w-3 text-muted-foreground" />
                 )}
               </button>
             </div>
@@ -153,8 +153,8 @@ function SponsorContent({
         </div>
         
         {/* QR Code */}
-        <div className="bg-white p-4 rounded-lg flex items-center justify-center mb-3">
-          <div className="w-48 h-48 border-2 border-gray-300 rounded-lg flex items-center justify-center bg-white relative overflow-hidden">
+        <div className="bg-background p-4 rounded-lg flex items-center justify-center mb-3">
+          <div className="w-48 h-48 border-2 border-border rounded-lg flex items-center justify-center bg-background relative overflow-hidden">
             <img 
               src="/qr.jpeg" 
               alt="UPI QR Code" 
@@ -164,8 +164,8 @@ function SponsorContent({
         </div>
         
         <div className="text-center">
-          <p className="text-xs font-medium text-gray-700 mb-1">UPI ID: {upiId}</p>
-          <p className="text-xs text-gray-500">Scan to pay with any UPI app</p>
+          <p className="text-xs font-medium text-foreground mb-1">UPI ID: {upiId}</p>
+          <p className="text-xs text-muted-foreground">Scan to pay with any UPI app</p>
         </div>
       </div>
     </div>

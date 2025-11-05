@@ -18,6 +18,7 @@ export function Button({
   borderClassName,
   duration,
   className,
+  gradientColor,
   ...otherProps
 }: {
   borderRadius?: string;
@@ -27,6 +28,7 @@ export function Button({
   borderClassName?: string;
   duration?: number;
   className?: string;
+  gradientColor?: string;
   [key: string]: any;
 }) {
   return (
@@ -56,7 +58,7 @@ export function Button({
 
       <div
         className={cn(
-          "relative flex h-full w-full items-center justify-center border border-slate-800 bg-slate-900/[0.8] text-sm text-white antialiased backdrop-blur-xl",
+          "relative flex h-full w-full items-center justify-center border border-border bg-background/80 text-sm text-foreground antialiased backdrop-blur-xl",
           className,
         )}
         style={{

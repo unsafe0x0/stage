@@ -21,14 +21,14 @@ export function BorderStyleSelector({ border, onBorderChange }: BorderStyleSelec
       id: 'default',
       label: 'Default',
       preview: (
-        <div className="w-full h-full rounded-lg bg-white shadow-[0_4px_12px_rgba(0,0,0,0.15)]" />
+        <div className="w-full h-full rounded-lg bg-background shadow-[0_4px_12px_rgba(0,0,0,0.15)]" />
       ),
     },
     {
       id: 'solid',
       label: 'Solid',
       preview: (
-        <div className="w-full h-full rounded-lg bg-white border-[3px] border-gray-400 shadow-[0_4px_12px_rgba(0,0,0,0.15)]" />
+        <div className="w-full h-full rounded-lg bg-background border-[3px] border-border shadow-[0_4px_12px_rgba(0,0,0,0.15)]" />
       ),
     },
     {
@@ -75,15 +75,15 @@ export function BorderStyleSelector({ border, onBorderChange }: BorderStyleSelec
                 'hover:scale-105 active:scale-95',
                 'focus:outline-none',
                 isSelected
-                  ? 'bg-primary/5 shadow-sm'
-                  : 'bg-gray-50 hover:bg-gray-100/80 border border-transparent hover:border-gray-200'
+                  ? 'bg-primary/5 shadow-sm border border-primary/50'
+                  : 'bg-muted hover:bg-muted/80 border border-border/50 hover:border-border'
               )}
               title={style.label}
             >
               <div className="w-full h-full rounded-md overflow-hidden">{style.preview}</div>
               <div className={cn(
                 'absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[9px] font-medium truncate max-w-[90%] px-1 rounded',
-                isSelected ? 'text-primary font-semibold' : 'text-gray-600 group-hover:text-gray-800'
+                isSelected ? 'text-primary font-semibold' : 'text-muted-foreground group-hover:text-foreground'
               )}>
                 {style.label}
               </div>

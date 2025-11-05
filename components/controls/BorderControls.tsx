@@ -134,7 +134,7 @@ function FramePreview({
 
         aria-selected={selected}
 
-        className="flex h-14 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-transparent bg-secondary transition-colors duration-200 aria-selected:border-primary hover:bg-secondary/80"
+        className="flex h-14 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-border/50 bg-secondary transition-colors duration-200 aria-selected:border-primary hover:bg-secondary/80 hover:border-border"
 
         title={type}
 
@@ -158,13 +158,13 @@ const framePreviews: Record<FrameType, React.ReactNode> = {
 
   solid: <div className="size-full rounded-md border-4 border-primary/80" />,
 
-  glassy: <div className="size-full rounded-md border-2 border-white/50 bg-white/10 backdrop-blur-sm" />,
+  glassy: <div className="size-full rounded-md border-2 border-foreground/20 bg-background/10 backdrop-blur-sm" />,
 
   'window-light': (
 
-    <div className="flex size-full flex-col rounded-md border-2 border-neutral-300 bg-white/80">
+    <div className="flex size-full flex-col rounded-md border-2 border-border bg-white">
 
-      <div className="flex h-2 items-center gap-0.5 rounded-t-sm bg-neutral-200 px-1">
+      <div className="flex h-2 items-center gap-0.5 rounded-t-sm bg-muted px-1">
 
         <div className="size-1 rounded-full bg-red-400" />
 
@@ -236,15 +236,15 @@ const framePreviews: Record<FrameType, React.ReactNode> = {
 
   ),
 
-  eclipse: <div className="size-full rounded-full bg-secondary-foreground" />,
+  eclipse: <div className="size-full rounded-full bg-black" />,
 
   'stack-light': (
 
     <div className="relative size-full">
 
-      <div className="absolute left-0 top-0 h-5/6 w-5/6 rounded-md border-2 border-neutral-300 bg-white/80" />
+      <div className="absolute left-0 top-0 h-5/6 w-5/6 rounded-md border-2 border-border bg-white" />
 
-      <div className="absolute bottom-0 right-0 h-5/6 w-5/6 rounded-md border-2 border-neutral-400/80 bg-white/60" />
+      <div className="absolute bottom-0 right-0 h-5/6 w-5/6 rounded-md border-2 border-border/80 bg-white/80" />
 
     </div>
 

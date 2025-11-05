@@ -35,9 +35,9 @@ export function EditorLeftPanel() {
 
   return (
     <>
-      <div className="w-full h-full bg-gray-100 flex flex-col md:rounded-r-2xl overflow-hidden md:w-80 md:border-r md:border-gray-200">
+      <div className="w-full h-full bg-muted flex flex-col md:rounded-r-2xl overflow-hidden md:w-80 border-r border-border">
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 bg-white md:rounded-t-r-2xl">
+        <div className="p-4 border-b border-border bg-background md:rounded-t-r-2xl">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
               <Image 
@@ -55,7 +55,7 @@ export function EditorLeftPanel() {
               href="https://x.com/code_kartik"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600 hover:text-gray-900"
+              className="p-2 hover:bg-accent rounded-lg transition-colors text-muted-foreground hover:text-foreground"
               aria-label="Twitter/X"
             >
               <FaXTwitter className="h-5 w-5" />
@@ -75,7 +75,7 @@ export function EditorLeftPanel() {
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-gray-200 bg-white md:rounded-b-r-2xl space-y-2">
+        <div className="p-4 border-t border-border bg-background md:rounded-b-r-2xl space-y-2">
           <div className="flex gap-2">
             <Button
               onClick={() => setExportDialogOpen(true)}
@@ -98,7 +98,7 @@ export function EditorLeftPanel() {
                   });
               }}
               disabled={!uploadedImageUrl || isExporting}
-              className="flex-1 h-11 justify-center gap-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-900 shadow-sm hover:shadow-md transition-all font-medium border border-gray-300"
+              className="flex-1 h-11 justify-center gap-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground shadow-sm hover:shadow-md transition-all font-medium border border-border"
             >
               <Copy className="size-4" />
               <span>{copySuccess ? 'Copied!' : 'Copy'}</span>
@@ -108,7 +108,7 @@ export function EditorLeftPanel() {
             onClick={clearImage}
             disabled={!uploadedImageUrl}
             variant="outline"
-            className="w-full h-10 justify-center gap-2 rounded-xl border-gray-300 hover:bg-gray-50 text-gray-700 transition-all"
+            className="w-full h-10 justify-center gap-2 rounded-xl border-border hover:bg-accent text-foreground transition-all"
           >
             <Trash2 className="size-4" />
             <span>Remove Image</span>

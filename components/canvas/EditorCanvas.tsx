@@ -8,7 +8,7 @@ const ClientCanvas = dynamic(() => import('@/components/canvas/ClientCanvas'), {
   ssr: false,
   loading: () => (
     <div className="flex-1 flex items-center justify-center min-h-[400px]">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
   ),
 })

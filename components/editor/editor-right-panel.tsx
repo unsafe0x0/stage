@@ -70,14 +70,14 @@ export function EditorRightPanel() {
   });
 
   return (
-    <div className="w-full h-full bg-gray-100 flex flex-col md:rounded-l-2xl overflow-hidden md:w-80 md:border-l md:border-gray-200">
+    <div className="w-full h-full bg-muted flex flex-col md:rounded-l-2xl overflow-hidden md:w-80 border-l border-border">
       {/* Header */}
       <div className="p-4 border-b border-border bg-background md:rounded-t-l-2xl">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-foreground">Canvas Settings</h3>
           <button
             onClick={() => setExpanded(!expanded)}
-            className="p-1 rounded-lg hover:bg-accent transition-colors"
+            className="p-1 rounded-lg hover:bg-accent transition-colors border border-border/50 hover:border-border"
           >
             {expanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
           </button>
@@ -122,10 +122,10 @@ export function EditorRightPanel() {
                       setBackgroundValue('primary_gradient');
                     }
                   }}
-                    className={`flex-1 text-xs font-medium transition-all rounded-lg h-8 ${
+                    className={`flex-1 text-xs font-medium transition-all rounded-lg h-8 border ${
                     backgroundConfig.type === 'gradient'
-                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
-                        : 'border-border hover:bg-accent text-foreground bg-background'
+                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm border-primary'
+                        : 'border-border/50 hover:bg-accent text-foreground bg-background hover:border-border'
                   }`}
                 >
                   Gradient
@@ -139,10 +139,10 @@ export function EditorRightPanel() {
                       setBackgroundValue('white');
                     }
                   }}
-                    className={`flex-1 text-xs font-medium transition-all rounded-lg h-8 ${
+                    className={`flex-1 text-xs font-medium transition-all rounded-lg h-8 border ${
                     backgroundConfig.type === 'solid'
-                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
-                        : 'border-border hover:bg-accent text-foreground bg-background'
+                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm border-primary'
+                        : 'border-border/50 hover:bg-accent text-foreground bg-background hover:border-border'
                   }`}
                 >
                   Solid
@@ -151,10 +151,10 @@ export function EditorRightPanel() {
                   variant={backgroundConfig.type === 'image' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setBackgroundType('image')}
-                    className={`flex-1 text-xs font-medium transition-all rounded-lg h-8 ${
+                    className={`flex-1 text-xs font-medium transition-all rounded-lg h-8 border ${
                     backgroundConfig.type === 'image'
-                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
-                        : 'border-border hover:bg-accent text-foreground bg-background'
+                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm border-primary'
+                        : 'border-border/50 hover:bg-accent text-foreground bg-background hover:border-border'
                   }`}
                 >
                   Image
@@ -255,7 +255,7 @@ export function EditorRightPanel() {
                               <Button
                                 variant="destructive"
                                 size="sm"
-                                className="absolute top-2 right-2 flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white border-0 shadow-md px-3 py-1.5 h-auto"
+                                className="absolute top-2 right-2 flex items-center gap-1.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground border-0 shadow-md px-3 py-1.5 h-auto"
                                 onClick={() => {
                                   // Reset to default gradient
                                   setBackgroundType('gradient');
@@ -382,10 +382,10 @@ export function EditorRightPanel() {
                     variant={backgroundBorderRadius === 0 ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setBackgroundBorderRadius(0)}
-                    className={`flex-1 text-xs font-medium transition-all rounded-lg h-8 ${
+                    className={`flex-1 text-xs font-medium transition-all rounded-lg h-8 border ${
                       backgroundBorderRadius === 0
-                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
-                        : 'border-border hover:bg-accent text-foreground bg-background'
+                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm border-primary'
+                        : 'border-border/50 hover:bg-accent text-foreground bg-background hover:border-border'
                     }`}
                   >
                     Sharp Edge
@@ -394,10 +394,10 @@ export function EditorRightPanel() {
                     variant={backgroundBorderRadius > 0 ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setBackgroundBorderRadius(24)}
-                    className={`flex-1 text-xs font-medium transition-all rounded-lg h-8 ${
+                    className={`flex-1 text-xs font-medium transition-all rounded-lg h-8 border ${
                       backgroundBorderRadius > 0
-                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
-                        : 'border-border hover:bg-accent text-foreground bg-background'
+                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm border-primary'
+                        : 'border-border/50 hover:bg-accent text-foreground bg-background hover:border-border'
                     }`}
                   >
                     Rounded

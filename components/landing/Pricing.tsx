@@ -12,7 +12,7 @@ const instrumentSerif = Instrument_Serif({
 
 export function Pricing() {
   return (
-    <section className="w-full py-12 sm:py-16 px-4 sm:px-6 border-t border-border bg-white">
+    <section className="w-full py-12 sm:py-16 px-4 sm:px-6 border-t border-border bg-background">
       <div className="container mx-auto max-w-4xl">
         <h2 className={`text-3xl sm:text-4xl font-bold text-center mb-8 sm:mb-12 px-2 ${instrumentSerif.className}`}>
           Pricing
@@ -52,7 +52,7 @@ export function Pricing() {
             </CardContent>
             <CardFooter>
               <Link href="/home" className="w-full">
-                <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 hover:border-blue-700 touch-manipulation min-h-[44px]">
+                <Button variant="outline" className="w-full border-primary text-primary hover:bg-accent hover:border-primary/80 touch-manipulation min-h-[44px]">
                   Get Started
                 </Button>
               </Link>
@@ -93,7 +93,7 @@ export function Pricing() {
             </CardContent>
             <CardFooter>
               <Link href="/home" className="w-full">
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all touch-manipulation min-h-[44px]">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all touch-manipulation min-h-[44px]">
                   Upgrade to Pro
                 </Button>
               </Link>

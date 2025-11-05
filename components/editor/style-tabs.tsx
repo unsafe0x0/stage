@@ -29,7 +29,12 @@ export function StyleTabs() {
       <Tabs defaultValue="style" className="w-full">
         <TabsList className="w-full grid grid-cols-2">
           <TabsTrigger value="style">Style</TabsTrigger>
-          <TabsTrigger value="3d">3D</TabsTrigger>
+          <TabsTrigger value="3d" className="relative">
+            3D
+            <span className="ml-1.5 px-1.5 py-0.5 text-[9px] font-semibold rounded bg-primary/20 text-primary border border-primary/30">
+              BETA
+            </span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="style" className="mt-4 space-y-6">
@@ -40,10 +45,10 @@ export function StyleTabs() {
               variant={borderRadius === 0 ? 'default' : 'outline'}
               size="sm"
               onClick={() => setBorderRadius(0)}
-              className={`flex-1 text-sm font-medium transition-all rounded-lg h-9 ${
+              className={`flex-1 text-sm font-medium transition-all rounded-lg h-9 border ${
                 borderRadius === 0
-                  ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
-                  : 'border-border hover:border-border/80 hover:bg-accent text-foreground bg-background'
+                  ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm border-primary'
+                  : 'border-border/50 hover:border-border hover:bg-accent text-foreground bg-background'
               }`}
             >
               Sharp Edge
@@ -52,10 +57,10 @@ export function StyleTabs() {
               variant={borderRadius > 0 ? 'default' : 'outline'}
               size="sm"
               onClick={() => setBorderRadius(24)}
-              className={`flex-1 text-sm font-medium transition-all rounded-lg h-9 ${
+              className={`flex-1 text-sm font-medium transition-all rounded-lg h-9 border ${
                 borderRadius > 0
-                  ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
-                  : 'border-border hover:border-border/80 hover:bg-accent text-foreground bg-background'
+                  ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm border-primary'
+                  : 'border-border/50 hover:border-border hover:bg-accent text-foreground bg-background'
               }`}
             >
               Rounded

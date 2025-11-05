@@ -37,7 +37,7 @@ export function Navigation({
             <FaGithub className="h-5 w-5 text-current" />
           </a>
           <Link href={ctaHref}>
-            <Button className="bg-blue-600 text-white hover:bg-blue-700 text-sm px-3 sm:px-4 py-2 touch-manipulation">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm px-3 sm:px-4 py-2 touch-manipulation">
               {ctaLabel}
             </Button>
           </Link>

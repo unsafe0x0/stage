@@ -32,10 +32,10 @@ export function ShadowControls({ shadow, onShadowChange }: ShadowControlsProps) 
             variant={shadow.enabled ? 'default' : 'outline'}
             size="sm"
             onClick={() => onShadowChange({ enabled: !shadow.enabled })}
-            className={`text-sm font-medium transition-all rounded-lg h-9 ${
+            className={`text-sm font-medium transition-all rounded-lg h-9 border ${
               shadow.enabled
-                ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
-                : 'border-border hover:border-border/80 hover:bg-accent text-foreground bg-background'
+                ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm border-primary'
+                : 'border-border/50 hover:border-border hover:bg-accent text-foreground bg-background'
             }`}
           >
             {shadow.enabled ? 'Enabled' : 'Disabled'}
@@ -60,7 +60,7 @@ export function ShadowControls({ shadow, onShadowChange }: ShadowControlsProps) 
                         spread: preset.spread,
                       })
                     }
-                    className={`text-sm font-medium transition-all rounded-lg h-9 border-border hover:border-border/80 hover:bg-accent text-foreground bg-background`}
+                    className={`text-sm font-medium transition-all rounded-lg h-9 border border-border/50 hover:border-border hover:bg-accent text-foreground bg-background`}
                   >
                     {preset.label}
                   </Button>

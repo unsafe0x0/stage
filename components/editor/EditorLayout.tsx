@@ -18,12 +18,12 @@ function EditorMain() {
   const [rightPanelOpen, setRightPanelOpen] = React.useState(false);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       <EditorStoreSync />
       
       {/* Mobile Header */}
       {isMobile && (
-        <div className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-10">
+        <div className="h-14 bg-background border-b border-border flex items-center justify-between px-4 z-10">
           <Button
             variant="ghost"
             size="icon"
@@ -58,7 +58,7 @@ function EditorMain() {
         )}
         
         {/* Center Canvas */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-white">
+        <div className="flex-1 flex flex-col overflow-hidden bg-background">
           <EditorContent>
             <EditorCanvas />
           </EditorContent>

@@ -47,7 +47,7 @@ export function ExportDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900">Export Canvas</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground">Export Canvas</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 sm:space-y-5">
           <FormatSelector format={format} onFormatChange={onFormatChange} />
@@ -59,13 +59,13 @@ export function ExportDialog({
           )}
 
           {error && (
-            <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+            <div className="text-sm text-destructive bg-destructive/10 p-2 rounded border border-destructive/20">
               {error}
             </div>
           )}
 
           <div className="pt-2 pb-1">
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-xs text-muted-foreground text-center">
               Exported images will include Stage watermark
             </p>
           </div>
@@ -73,7 +73,7 @@ export function ExportDialog({
           <Button
             onClick={handleExport}
             disabled={isExporting}
-            className="w-full h-11 font-semibold bg-blue-600 hover:bg-blue-700"
+            className="w-full h-11 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
             size="lg"
           >
             {isExporting ? "Exporting..." : `Export as ${format.toUpperCase()}`}

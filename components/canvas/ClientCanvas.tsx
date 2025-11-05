@@ -49,7 +49,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
     noise,
   } = useEditorStore()
 
-  const { backgroundConfig, backgroundBorderRadius, perspective3D } = useImageStore()
+  const { backgroundConfig, backgroundBorderRadius, perspective3D, imageOpacity } = useImageStore()
   const responsiveDimensions = useResponsiveCanvasDimensions()
   const backgroundStyle = getBackgroundCSS(backgroundConfig)
   
@@ -362,6 +362,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
+                opacity: imageOpacity,
                 borderRadius: showFrame && frame.type === 'window'
                   ? '0 0 12px 12px'
                   : showFrame && frame.type === 'ruler'
@@ -707,7 +708,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
                 y={frameOffset + windowPadding + windowHeader}
                 width={imageScaledW}
                 height={imageScaledH}
-                opacity={has3DTransform ? 0 : 1}
+                opacity={has3DTransform ? 0 : imageOpacity}
                 cornerRadius={
                   showFrame && frame.type === 'window'
                     ? [0, 0, screenshot.radius, screenshot.radius]
@@ -751,7 +752,7 @@ export default function ClientCanvas() {
   if (!image) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     )
   }

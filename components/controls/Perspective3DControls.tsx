@@ -99,7 +99,7 @@ export function Perspective3DControls() {
           variant="ghost"
           size="sm"
           onClick={reset}
-          className="h-7 px-2 text-xs"
+          className="h-7 px-2 text-xs border border-border/50 hover:border-border"
         >
           Reset
         </Button>
@@ -113,7 +113,7 @@ export function Perspective3DControls() {
             variant="outline"
             size="sm"
             onClick={() => applyPreset(preset)}
-            className="h-8 text-xs font-medium"
+            className="h-8 text-xs font-medium border border-border/50 hover:border-border"
           >
             {preset.name}
           </Button>

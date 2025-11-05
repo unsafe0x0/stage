@@ -68,7 +68,7 @@ const defaultFAQs: FAQItem[] = [
 
 export function FAQ({ title = "Frequently Asked Questions", faqs = defaultFAQs }: FAQProps) {
   return (
-    <section className="w-full py-12 sm:py-16 px-4 sm:px-6 border-t border-border bg-white">
+    <section className="w-full py-12 sm:py-16 px-4 sm:px-6 border-t border-border bg-background">
       <div className="container mx-auto max-w-3xl">
         <h2 className={`text-3xl sm:text-4xl font-bold text-center mb-8 sm:mb-12 px-2 ${instrumentSerif.className}`}>
           {title}

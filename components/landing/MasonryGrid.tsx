@@ -52,7 +52,7 @@ const sampleItems: MasonryItem[] = demoImagePublicIds.map((publicId, index) => (
 
 export function MasonryGrid() {
   return (
-    <section className="w-full py-12 sm:py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white">
+    <section className="w-full py-12 sm:py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="container mx-auto max-w-7xl">
         {/* CSS Columns masonry layout */}
         <div 

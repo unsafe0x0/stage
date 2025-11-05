@@ -31,19 +31,19 @@ function GlassInputWrapper({
 
   const intensityClasses = {
     subtle: {
-      border: "border-white/15 dark:border-white/8",
-      bg: "bg-white/5 dark:bg-white/3",
-      glow: "from-white/8 dark:from-white/4"
+      border: "border-border/20",
+      bg: "bg-background/5",
+      glow: "from-foreground/8"
     },
     default: {
-      border: "border-white/25 dark:border-white/12",
-      bg: "bg-white/8 dark:bg-white/5",
-      glow: "from-white/12 dark:from-white/6"
+      border: "border-border/30",
+      bg: "bg-background/8",
+      glow: "from-foreground/12"
     },
     strong: {
-      border: "border-white/35 dark:border-white/18",
-      bg: "bg-white/12 dark:bg-white/8",
-      glow: "from-white/18 dark:from-white/9"
+      border: "border-border/40",
+      bg: "bg-background/12",
+      glow: "from-foreground/18"
     },
   }
 
@@ -66,7 +66,7 @@ function GlassInputWrapper({
         // Transition
         "transition-all duration-200",
         // Hover effect
-        "hover:shadow-md hover:border-white/30 dark:hover:border-white/15",
+        "hover:shadow-md hover:border-border/50",
         className
       )}
       {...props}

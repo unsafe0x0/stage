@@ -174,18 +174,18 @@ export const TextOverlayControls = () => {
           value={newText}
           onChange={(e) => setNewText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAddText()}
-          className="h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
+          className="h-11 rounded-xl border-border focus:border-primary focus:ring-2 focus:ring-ring"
         />
         <div className="flex items-center gap-2">
-          <div className="flex-1 h-px bg-gray-200"></div>
-          <span className="text-xs text-gray-500">or</span>
-          <div className="flex-1 h-px bg-gray-200"></div>
+          <div className="flex-1 h-px bg-border"></div>
+          <span className="text-xs text-muted-foreground">or</span>
+          <div className="flex-1 h-px bg-border"></div>
         </div>
         <Button
           onClick={handleAddText}
           disabled={!newText.trim()}
           variant="outline"
-          className="w-full h-10 rounded-xl border-gray-300 hover:bg-gray-50 text-gray-700 gap-2"
+          className="w-full h-10 rounded-xl border-border hover:bg-accent text-foreground gap-2"
         >
           <CloudUpload className="size-4" />
           <span>Upload Image</span>
@@ -203,8 +203,8 @@ export const TextOverlayControls = () => {
                 key={overlay.id}
                 className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition-colors ${
                   selectedOverlayId === overlay.id
-                    ? 'bg-gray-100 border-gray-300'
-                    : 'bg-white hover:bg-gray-50 border-gray-200'
+                    ? 'bg-accent border-primary'
+                    : 'bg-background hover:bg-accent border-border'
                 }`}
                 onClick={() => setSelectedOverlayId(overlay.id)}
               >
@@ -255,7 +255,7 @@ export const TextOverlayControls = () => {
               placeholder="Edit text..."
               value={selectedOverlay.text}
               onChange={(e) => handleUpdateText(e.target.value)}
-              className="h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
+              className="h-11 rounded-xl border-border focus:border-primary focus:ring-2 focus:ring-ring"
             />
 
             <div className="flex gap-2 items-center">
@@ -263,13 +263,13 @@ export const TextOverlayControls = () => {
                 type="color"
                 value={selectedOverlay.color}
                 onChange={(e) => handleUpdateColor(e.target.value)}
-                className="w-12 h-12 rounded-xl border border-gray-300 cursor-pointer"
+                className="w-12 h-12 rounded-xl border border-border cursor-pointer"
               />
               <Input
                 placeholder="#ffffff"
                 value={selectedOverlay.color}
                 onChange={(e) => handleUpdateColor(e.target.value)}
-                className="flex-1 h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200 font-mono text-sm"
+                className="flex-1 h-11 rounded-xl border-border focus:border-primary focus:ring-2 focus:ring-ring font-mono text-sm"
               />
             </div>
 
@@ -277,7 +277,7 @@ export const TextOverlayControls = () => {
               value={selectedOverlay.fontFamily}
               onValueChange={handleUpdateFontFamily}
             >
-              <SelectTrigger className="w-full h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200">
+              <SelectTrigger className="w-full h-11 rounded-xl border-border focus:border-primary focus:ring-2 focus:ring-ring">
                 <SelectValue placeholder="Font family" />
               </SelectTrigger>
                 <SelectContent>
@@ -294,7 +294,7 @@ export const TextOverlayControls = () => {
               value={selectedOverlay.fontWeight}
               onValueChange={handleUpdateFontWeight}
             >
-              <SelectTrigger className="w-full h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200">
+              <SelectTrigger className="w-full h-11 rounded-xl border-border focus:border-primary focus:ring-2 focus:ring-ring">
                 <SelectValue placeholder="Font weight" />
               </SelectTrigger>
               <SelectContent>
@@ -339,7 +339,7 @@ export const TextOverlayControls = () => {
               value={selectedOverlay.orientation}
               onValueChange={handleUpdateOrientation}
             >
-              <SelectTrigger className="w-full h-11 rounded-xl border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200">
+              <SelectTrigger className="w-full h-11 rounded-xl border-border focus:border-primary focus:ring-2 focus:ring-ring">
                 <SelectValue placeholder="Text orientation" />
               </SelectTrigger>
                 <SelectContent>
@@ -348,8 +348,8 @@ export const TextOverlayControls = () => {
                 </SelectContent>
               </Select>
 
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
-              <span className="text-sm font-medium text-gray-900 whitespace-nowrap">Font Size</span>
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-muted border border-border">
+              <span className="text-sm font-medium text-foreground whitespace-nowrap">Font Size</span>
               <div className="flex-1 flex items-center gap-3">
                 <Slider
                   value={[selectedOverlay.fontSize]}
@@ -362,8 +362,8 @@ export const TextOverlayControls = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
-              <span className="text-sm font-medium text-gray-900 whitespace-nowrap">Opacity</span>
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-muted border border-border">
+              <span className="text-sm font-medium text-foreground whitespace-nowrap">Opacity</span>
               <div className="flex-1 flex items-center gap-3">
                 <Slider
                   value={[selectedOverlay.opacity]}

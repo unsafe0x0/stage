@@ -86,12 +86,12 @@ export function ImageUploadSimple({ onImageUpload, className }: ImageUploadSimpl
               'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
               isDragActive
                 ? 'border-primary bg-primary/5'
-                : 'border-gray-300 hover:border-gray-400',
+                : 'border-border hover:border-primary/60',
               error && 'border-destructive'
             )}
           >
             <input {...getInputProps()} />
-            <FaCloudUploadAlt className="mx-auto mb-4 text-gray-400" size={48} />
+            <FaCloudUploadAlt className="mx-auto mb-4 text-muted-foreground" size={48} />
             {isDragActive ? (
               <p className="text-sm">Drop the image here...</p>
             ) : (
