@@ -23,6 +23,15 @@ const STANDARD_DIMENSIONS: Record<string, { width: number; height: number }> = {
   '4:3': { width: 1920, height: 1440 }, // Traditional - Classic displays
   '5:4': { width: 1920, height: 1536 }, // Photo - Classic photography
   '16:10': { width: 1920, height: 1200 }, // Widescreen - Desktop displays
+  '40:21': { width: 1200, height: 630 }, // Open Graph - Standard OG image format (1200×630px)
+  '3:1': { width: 1500, height: 500 }, // Twitter Banner - Twitter/X profile banner format
+  '4:1': { width: 1584, height: 396 }, // LinkedIn Banner - LinkedIn profile/company banner format
+};
+
+// Special dimensions for specific aspect ratio IDs that share common ratios
+const SPECIAL_DIMENSIONS: Record<string, { width: number; height: number }> = {
+  'youtube_banner': { width: 2560, height: 1440 }, // YouTube Channel Banner - Higher resolution 16:9
+  'instagram_banner': { width: 1080, height: 1080 }, // Instagram Highlight Cover - Square format
 };
 
 /**
@@ -69,6 +78,21 @@ export function getAspectRatioPreset(aspectRatioId: string): AspectRatioPreset |
   
   if (!aspectRatio) {
     return null;
+  }
+  
+  // Check for special dimensions first (for formats that share ratios but have different dimensions)
+  if (SPECIAL_DIMENSIONS[aspectRatioId]) {
+    const specialDimensions = SPECIAL_DIMENSIONS[aspectRatioId];
+    const ratioString = `${aspectRatio.width}:${aspectRatio.height}`;
+    return {
+      id: aspectRatio.id,
+      name: aspectRatio.name,
+      category: aspectRatio.category || 'Custom',
+      width: specialDimensions.width,
+      height: specialDimensions.height,
+      ratio: ratioString,
+      description: aspectRatio.description,
+    };
   }
   
   // Find matching preset by comparing ratio strings
