@@ -169,7 +169,7 @@ export function EditorRightPanel() {
               {backgroundConfig.type === 'gradient' && (
                 <div className="space-y-3">
                   <Label className="text-xs font-medium text-muted-foreground">Gradient</Label>
-                  <div className="grid grid-cols-2 gap-2.5 max-h-64 overflow-y-auto pr-1">
+                  <div className="grid grid-cols-2 gap-2.5 max-h-64 overflow-y-auto pr-2">
                     {(Object.keys(gradientColors) as GradientKey[]).map((key) => (
                       <button
                         key={key}
@@ -283,7 +283,7 @@ export function EditorRightPanel() {
                   {backgroundCategories && Object.keys(backgroundCategories).length > 0 && (
                     <div className="space-y-3">
                       <Label className="text-xs font-medium text-muted-foreground">Preset Backgrounds</Label>
-                      <div className="max-h-[400px] overflow-y-auto pr-1 space-y-3">
+                      <div className="max-h-[400px] overflow-y-auto pr-2 space-y-3">
                         {getAvailableCategories()
                           .filter((category: string) => category !== 'demo' && category !== 'nature')
                           .map((category: string) => {
@@ -316,7 +316,7 @@ export function EditorRightPanel() {
                                           setBackgroundValue(publicId);
                                           setBackgroundType('image');
                                         }}
-                                        className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
+                                        className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all w-full ${
                                           backgroundConfig.value === publicId
                                             ? 'border-primary ring-2 ring-ring shadow-sm'
                                             : 'border-border hover:border-border/80'
