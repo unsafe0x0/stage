@@ -401,6 +401,15 @@ interface ImageState {
   imageScale: number
   imageBorder: ImageBorder
   imageShadow: ImageShadow
+  perspective3D: {
+    perspective: number
+    rotateX: number
+    rotateY: number
+    rotateZ: number
+    translateX: number
+    translateY: number
+    scale: number
+  }
   setImage: (file: File) => void
   clearImage: () => void
   setGradient: (gradient: GradientKey) => void
@@ -419,6 +428,7 @@ interface ImageState {
   setImageScale: (scale: number) => void
   setImageBorder: (border: ImageBorder | Partial<ImageBorder>) => void
   setImageShadow: (shadow: ImageShadow | Partial<ImageShadow>) => void
+  setPerspective3D: (perspective: Partial<ImageState['perspective3D']>) => void
   exportImage: () => Promise<void>
 }
 
@@ -454,6 +464,15 @@ export const useImageStore = create<ImageState>((set, get) => ({
     spread: 0,
     color: 'rgba(0, 0, 0, 0.3)',
   },
+  perspective3D: {
+    perspective: 200, // em units, converted to px
+    rotateX: 0,
+    rotateY: 0,
+    rotateZ: 0,
+    translateX: 0,
+    translateY: 0,
+    scale: 1,
+  },
 
   setImage: (file: File) => {
     const imageUrl = URL.createObjectURL(file)
@@ -468,6 +487,15 @@ export const useImageStore = create<ImageState>((set, get) => ({
         
       },
       selectedGradient: 'yellow_gradient',
+      perspective3D: {
+        perspective: 200,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0,
+        translateX: 0,
+        translateY: 0,
+        scale: 1,
+      },
     })
   },
 
@@ -609,6 +637,15 @@ export const useImageStore = create<ImageState>((set, get) => ({
       imageShadow: {
         ...currentShadow,
         ...shadow,
+      },
+    })
+  },
+  setPerspective3D: (perspective: Partial<ImageState['perspective3D']>) => {
+    const currentPerspective = get().perspective3D
+    set({
+      perspective3D: {
+        ...currentPerspective,
+        ...perspective,
       },
     })
   },

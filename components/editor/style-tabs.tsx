@@ -5,20 +5,20 @@ import { useImageStore } from '@/lib/store';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { BorderControls } from '@/components/controls/BorderControls';
 import { ShadowControls } from '@/components/controls/ShadowControls';
+import { Perspective3DControls } from '@/components/controls/Perspective3DControls';
 
 export function StyleTabs() {
   const {
     borderRadius,
     imageOpacity,
     imageScale,
-    imageBorder,
     imageShadow,
     setBorderRadius,
     setImageOpacity,
     setImageScale,
-    setImageBorder,
     setImageShadow,
   } = useImageStore();
 
@@ -26,7 +26,13 @@ export function StyleTabs() {
     <div className="space-y-6">
       <h4 className="text-md font-semibold text-foreground">IMAGE</h4>
       
-      <div className="space-y-6">
+      <Tabs defaultValue="style" className="w-full">
+        <TabsList className="w-full grid grid-cols-2">
+          <TabsTrigger value="style">Style</TabsTrigger>
+          <TabsTrigger value="3d">3D</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="style" className="mt-4 space-y-6">
         <div className="space-y-4">
           <Label className="text-sm font-semibold text-foreground">Border Radius</Label>
           <div className="flex gap-2 mb-3">
@@ -108,7 +114,12 @@ export function StyleTabs() {
             </span>
           </div>
         </div>
-      </div>
+        </TabsContent>
+
+        <TabsContent value="3d" className="mt-4">
+          <Perspective3DControls />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

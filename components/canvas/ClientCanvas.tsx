@@ -49,7 +49,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
     noise,
   } = useEditorStore()
 
-  const { backgroundConfig, backgroundBorderRadius } = useImageStore()
+  const { backgroundConfig, backgroundBorderRadius, perspective3D } = useImageStore()
   const responsiveDimensions = useResponsiveCanvasDimensions()
   const backgroundStyle = getBackgroundCSS(backgroundConfig)
   
@@ -260,6 +260,32 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
       })()
     : {}
 
+  // Build CSS 3D transform string for image only
+  // Include screenshot.rotation to match Konva Group rotation
+  const perspective3DTransform = `
+    translate(${perspective3D.translateX}%, ${perspective3D.translateY}%) 
+    scale(${perspective3D.scale}) 
+    rotateX(${perspective3D.rotateX}deg) 
+    rotateY(${perspective3D.rotateY}deg) 
+    rotateZ(${perspective3D.rotateZ + screenshot.rotation}deg)
+  `.replace(/\s+/g, ' ').trim()
+
+  // Check if 3D transforms are active (any non-default value)
+  const has3DTransform = 
+    perspective3D.rotateX !== 0 ||
+    perspective3D.rotateY !== 0 ||
+    perspective3D.rotateZ !== 0 ||
+    perspective3D.translateX !== 0 ||
+    perspective3D.translateY !== 0 ||
+    perspective3D.scale !== 1
+
+  // Calculate image position relative to canvas
+  // Account for Group position and offset
+  const groupCenterX = canvasW / 2 + screenshot.offsetX
+  const groupCenterY = canvasH / 2 + screenshot.offsetY
+  const imageX = groupCenterX + frameOffset + windowPadding - imageScaledW / 2
+  const imageY = groupCenterY + frameOffset + windowPadding + windowHeader - imageScaledH / 2
+
   /* ─────────────────── render ─────────────────── */
   return (
     <div
@@ -312,6 +338,43 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
         >
           <TextOverlayRenderer />
         </div>
+
+        {/* 3D Transformed Image Overlay - Only when 3D transforms are active */}
+        {has3DTransform && (
+          <div
+            data-3d-overlay="true"
+            style={{
+              position: 'absolute',
+              left: `${imageX}px`,
+              top: `${imageY}px`,
+              width: `${imageScaledW}px`,
+              height: `${imageScaledH}px`,
+              perspective: `${perspective3D.perspective}px`,
+              transformStyle: 'preserve-3d',
+              zIndex: 15,
+              pointerEvents: 'none',
+            }}
+          >
+            <img
+              src={image.src}
+              alt="3D transformed"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: showFrame && frame.type === 'window'
+                  ? '0 0 12px 12px'
+                  : showFrame && frame.type === 'ruler'
+                  ? `${screenshot.radius * 0.8}px`
+                  : `${screenshot.radius}px`,
+                transform: perspective3DTransform,
+                transformOrigin: 'center center',
+                willChange: 'transform',
+                transition: 'transform 0.125s linear',
+              }}
+            />
+          </div>
+        )}
         
         {/* Konva Stage - only for user images, frames, patterns, noise */}
         <Stage
@@ -644,6 +707,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
                 y={frameOffset + windowPadding + windowHeader}
                 width={imageScaledW}
                 height={imageScaledH}
+                opacity={has3DTransform ? 0 : 1}
                 cornerRadius={
                   showFrame && frame.type === 'window'
                     ? [0, 0, screenshot.radius, screenshot.radius]

@@ -7,7 +7,7 @@ import Konva from 'konva';
 import { getAspectRatioPreset } from '@/lib/aspect-ratio-utils';
 import { exportElement, type ExportOptions } from '@/lib/export/export-service';
 import { saveExportPreferences, getExportPreferences, saveExportedImage } from '@/lib/export-storage';
-import { useImageStore } from '@/lib/store';
+import { useImageStore, useEditorStore } from '@/lib/store';
 import { getKonvaStage } from '@/components/canvas/ClientCanvas';
 
 export interface ExportSettings {
@@ -25,7 +25,8 @@ const DEFAULT_SETTINGS: ExportSettings = {
 export function useExport(selectedAspectRatio: string) {
   const [settings, setSettings] = useState<ExportSettings>(DEFAULT_SETTINGS);
   const [isExporting, setIsExporting] = useState(false);
-  const { backgroundConfig, backgroundBorderRadius, textOverlays } = useImageStore();
+  const { backgroundConfig, backgroundBorderRadius, textOverlays, perspective3D } = useImageStore();
+  const { screenshot } = useEditorStore();
 
   // Load preferences on mount
   useEffect(() => {
@@ -105,7 +106,10 @@ export function useExport(selectedAspectRatio: string) {
         konvaStage,
         backgroundConfig,
         backgroundBorderRadius,
-        textOverlays
+        textOverlays,
+        perspective3D,
+        screenshot.src || undefined,
+        screenshot.radius
       );
 
       if (!result.dataURL || result.dataURL === 'data:,') {
@@ -148,7 +152,7 @@ export function useExport(selectedAspectRatio: string) {
     } finally {
       setIsExporting(false);
     }
-  }, [selectedAspectRatio, settings, backgroundConfig, backgroundBorderRadius, textOverlays]);
+  }, [selectedAspectRatio, settings, backgroundConfig, backgroundBorderRadius, textOverlays, perspective3D, screenshot.src, screenshot.radius]);
 
   const copyImage = useCallback(async (): Promise<void> => {
     setIsExporting(true);
@@ -177,7 +181,10 @@ export function useExport(selectedAspectRatio: string) {
         konvaStage,
         backgroundConfig,
         backgroundBorderRadius,
-        textOverlays
+        textOverlays,
+        perspective3D,
+        screenshot.src || undefined,
+        screenshot.radius
       );
 
       if (!result.dataURL || result.dataURL === 'data:,') {
@@ -231,7 +238,7 @@ export function useExport(selectedAspectRatio: string) {
     } finally {
       setIsExporting(false);
     }
-  }, [selectedAspectRatio, settings, backgroundConfig, backgroundBorderRadius, textOverlays]);
+  }, [selectedAspectRatio, settings, backgroundConfig, backgroundBorderRadius, textOverlays, perspective3D, screenshot.src, screenshot.radius]);
 
   return {
     settings,

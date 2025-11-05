@@ -545,6 +545,125 @@ async function exportBackground(
 }
 
 /**
+ * Render 3D transformed image on canvas
+ * Uses mathematical transformations to simulate CSS 3D transforms
+ */
+async function render3DTransformOnCanvas(
+  imageSrc: string,
+  width: number,
+  height: number,
+  scale: number,
+  perspective3D: any,
+  borderRadius: number = 0
+): Promise<HTMLCanvasElement> {
+  // Create canvas
+  const canvas = document.createElement('canvas');
+  const scaledWidth = width * scale;
+  const scaledHeight = height * scale;
+  canvas.width = scaledWidth;
+  canvas.height = scaledHeight;
+  const ctx = canvas.getContext('2d');
+  
+  if (!ctx) {
+    throw new Error('Failed to get canvas context');
+  }
+  
+  // Load image
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = reject;
+    img.src = imageSrc;
+  });
+  
+  // Calculate transform values
+  const radX = (perspective3D.rotateX * Math.PI) / 180;
+  const radY = (perspective3D.rotateY * Math.PI) / 180;
+  const radZ = (perspective3D.rotateZ * Math.PI) / 180;
+  
+  // Perspective value (closer values create more dramatic effect)
+  const perspective = perspective3D.perspective || 200;
+  
+  // Center point
+  const centerX = scaledWidth / 2;
+  const centerY = scaledHeight / 2;
+  
+  // Apply translate offset
+  const translateX = (perspective3D.translateX / 100) * scaledWidth;
+  const translateY = (perspective3D.translateY / 100) * scaledHeight;
+  
+  // Calculate scale factor based on perspective and rotation
+  // This simulates perspective foreshortening
+  const perspectiveScale = perspective / (perspective + Math.abs(Math.sin(radY)) * scaledWidth * 0.5);
+  const finalScale = (perspective3D.scale || 1) * perspectiveScale;
+  
+  // Save context
+  ctx.save();
+  
+  // Move to center
+  ctx.translate(centerX + translateX, centerY + translateY);
+  
+  // Apply rotations
+  // Note: Canvas 2D doesn't support true 3D, so we simulate using 2D transforms
+  // This is an approximation that works well for most cases
+  
+  // Apply Z rotation first (around the Z-axis)
+  ctx.rotate(radZ);
+  
+  // Apply perspective-like scaling based on rotation
+  // This simulates the foreshortening effect of 3D rotation
+  const scaleX = Math.cos(radY);
+  const scaleY = Math.cos(radX);
+  
+  ctx.scale(scaleX * finalScale, scaleY * finalScale);
+  
+  // Apply shear for 3D effect (simulates rotateX and rotateY)
+  // The skew approximates the perspective distortion
+  const skewX = Math.sin(radY) * 0.5;
+  const skewY = -Math.sin(radX) * 0.5;
+  ctx.transform(1, skewY, skewX, 1, 0, 0);
+  
+  // Draw image centered
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  
+  // If borderRadius is needed, use clipping path
+  if (borderRadius > 0) {
+    const cornerRadius = borderRadius * scale;
+    const x = -scaledWidth / 2;
+    const y = -scaledHeight / 2;
+    const w = scaledWidth;
+    const h = scaledHeight;
+    ctx.beginPath();
+    ctx.moveTo(x + cornerRadius, y);
+    ctx.lineTo(x + w - cornerRadius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + cornerRadius);
+    ctx.lineTo(x + w, y + h - cornerRadius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - cornerRadius, y + h);
+    ctx.lineTo(x + cornerRadius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - cornerRadius);
+    ctx.lineTo(x, y + cornerRadius);
+    ctx.quadraticCurveTo(x, y, x + cornerRadius, y);
+    ctx.closePath();
+    ctx.clip();
+  }
+  
+  ctx.drawImage(
+    img,
+    -scaledWidth / 2,
+    -scaledHeight / 2,
+    scaledWidth,
+    scaledHeight
+  );
+  
+  // Restore context
+  ctx.restore();
+  
+  return canvas;
+}
+
+/**
  * Export Konva stage as canvas (excluding background layer)
  */
 async function exportKonvaStage(
@@ -676,7 +795,10 @@ export async function exportElement(
   konvaStage: Konva.Stage | null,
   backgroundConfig: any,
   backgroundBorderRadius: number,
-  textOverlays: any[] = []
+  textOverlays: any[] = [],
+  perspective3D?: any,
+  imageSrc?: string,
+  screenshotRadius?: number
 ): Promise<ExportResult> {
   // Wait a bit to ensure DOM is ready
   await new Promise(resolve => setTimeout(resolve, 200));
@@ -702,7 +824,7 @@ export async function exportElement(
     );
 
     // Step 2: Export Konva stage (user images, frames, patterns, etc.) - excluding backgrounds
-    const konvaCanvas = await exportKonvaStage(
+    let konvaCanvas = await exportKonvaStage(
       konvaStage,
       options.exportWidth,
       options.exportHeight,
@@ -710,6 +832,79 @@ export async function exportElement(
       options.format,
       options.quality
     );
+
+    // Step 2.5: If 3D transforms are active, render the 3D transform on canvas
+    if (perspective3D && imageSrc) {
+      const has3DTransform = 
+        perspective3D.rotateX !== 0 ||
+        perspective3D.rotateY !== 0 ||
+        perspective3D.rotateZ !== 0 ||
+        perspective3D.translateX !== 0 ||
+        perspective3D.translateY !== 0 ||
+        perspective3D.scale !== 1;
+
+      if (has3DTransform) {
+        try {
+          // Find the 3D transformed image overlay to get dimensions
+          const overlayContainer = element.querySelector('[data-3d-overlay="true"]') as HTMLElement;
+          const overlayImage = overlayContainer?.querySelector('img[alt="3D transformed"]') as HTMLImageElement;
+          
+          if (overlayImage && overlayContainer) {
+            // Get the displayed dimensions from the overlay
+            const overlayRect = overlayContainer.getBoundingClientRect();
+            const innerContainer = element.querySelector('div[style*="position: relative"]') as HTMLElement;
+            
+            if (innerContainer) {
+              const innerRect = innerContainer.getBoundingClientRect();
+              
+              // Calculate image dimensions (use natural size or displayed size)
+              const imageWidth = overlayRect.width || overlayImage.naturalWidth || options.exportWidth;
+              const imageHeight = overlayRect.height || overlayImage.naturalHeight || options.exportHeight;
+              
+              // Render 3D transform on canvas
+              const transformedCanvas = await render3DTransformOnCanvas(
+                imageSrc,
+                imageWidth,
+                imageHeight,
+                options.scale,
+                perspective3D,
+                screenshotRadius || 0
+              );
+              
+              // Calculate position relative to inner container
+              const relativeX = overlayRect.left - innerRect.left;
+              const relativeY = overlayRect.top - innerRect.top;
+              
+              // Scale to export dimensions
+              const scaleX = (options.exportWidth * options.scale) / innerRect.width;
+              const scaleY = (options.exportHeight * options.scale) / innerRect.height;
+              
+              const scaledX = relativeX * scaleX;
+              const scaledY = relativeY * scaleY;
+              const scaledWidth = imageWidth * scaleX;
+              const scaledHeight = imageHeight * scaleY;
+              
+              // Composite the transformed canvas onto the Konva canvas
+              const compositeCtx = konvaCanvas.getContext('2d');
+              if (compositeCtx && transformedCanvas.width > 0 && transformedCanvas.height > 0) {
+                compositeCtx.imageSmoothingEnabled = true;
+                compositeCtx.imageSmoothingQuality = 'high';
+                compositeCtx.save();
+                compositeCtx.drawImage(
+                  transformedCanvas,
+                  0, 0, transformedCanvas.width, transformedCanvas.height,
+                  scaledX, scaledY, scaledWidth, scaledHeight
+                );
+                compositeCtx.restore();
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('Failed to render 3D transform, using Konva image instead:', error);
+          console.error('Error details:', error);
+        }
+      }
+    }
 
     // Step 3: Composite both canvases
     const finalCanvas = compositeCanvases(
