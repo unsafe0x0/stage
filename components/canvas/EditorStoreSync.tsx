@@ -61,7 +61,7 @@ export function EditorStoreSync() {
     // Sync background
     const bgConfig = imageStore.backgroundConfig
     if (bgConfig.type === 'gradient') {
-      const gradientStr = gradientColors[bgConfig.value as GradientKey] || gradientColors.primary_gradient
+      const gradientStr = gradientColors[bgConfig.value as GradientKey] || gradientColors.sunset_vibes
       const { colorA, colorB, direction } = parseGradientColors(gradientStr)
       if (
         editorStore.background.mode !== 'gradient' ||

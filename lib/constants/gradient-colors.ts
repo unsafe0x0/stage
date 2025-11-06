@@ -19,6 +19,7 @@ export const gradientColors = {
   warm_ember: 'linear-gradient(to right, #FF8A80, #FF6B6B)',
   honey_glow: 'linear-gradient(to right, #FFD700, #FFA500)',
   terracotta: 'linear-gradient(to right, #E07A5F, #F2CC8F)',
+  orange_fire: 'linear-gradient(to right, #FF9900, #FF6347)',
   
   // Row 4 - Cool & Calm
   arctic_blue: 'linear-gradient(to right, #74B9FF, #0984E3)',

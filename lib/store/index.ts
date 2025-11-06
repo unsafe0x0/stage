@@ -293,7 +293,7 @@ export function useEditorStoreSync() {
     // Sync background
     const bgConfig = imageStore.backgroundConfig
     if (bgConfig.type === 'gradient') {
-      const gradientStr = gradientColors[bgConfig.value as GradientKey] || gradientColors.primary_gradient
+      const gradientStr = gradientColors[bgConfig.value as GradientKey] || gradientColors.sunset_vibes
       const { colorA, colorB, direction } = parseGradientColors(gradientStr)
       if (
         editorStore.background.mode !== 'gradient' ||
@@ -435,13 +435,13 @@ interface ImageState {
 export const useImageStore = create<ImageState>((set, get) => ({
   uploadedImageUrl: null,
   imageName: null,
-  selectedGradient: 'primary_gradient',
+  selectedGradient: 'sunset_vibes',
   borderRadius: 0,
   backgroundBorderRadius: 0,
   selectedAspectRatio: '16_9',
   backgroundConfig: {
     type: 'gradient',
-    value: 'primary_gradient',
+    value: 'sunset_vibes',
     opacity: 1,
   },
   textOverlays: [],
@@ -482,11 +482,11 @@ export const useImageStore = create<ImageState>((set, get) => ({
       imageScale: 90,
       backgroundConfig: {
         type: 'gradient',
-        value: 'yellow_gradient',
+        value: 'orange_fire',
         opacity: 1,
         
       },
-      selectedGradient: 'yellow_gradient',
+      selectedGradient: 'orange_fire',
       perspective3D: {
         perspective: 200,
         rotateX: 0,
