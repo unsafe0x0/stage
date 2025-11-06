@@ -35,6 +35,18 @@ interface SponsorsProps {
 const defaultSponsors: Sponsor[] = [
 
   {
+    name: "Kanak Kumar Mahala",
+    avatar: "/kanak.jpg",
+    avatarAlt: "kanak kumar mahala",
+    amount: "₹701.00",
+    amountType: "one time",
+    total: "₹701.00",
+    github: "kanakk365",
+    twitter: "Lbringer_nikki",
+    website: "https://www.kanakk.me",
+    url: "https://x.com/kanak_k365",
+  },
+  {
     name: "Aditya Garimella",
     avatar: "/aditya.jpg",
     avatarAlt: "aditya garimella",

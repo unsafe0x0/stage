@@ -452,7 +452,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
                   fill="rgba(255, 255, 255, 0.15)"
                   stroke="rgba(255, 255, 255, 0.3)"
                   strokeWidth={frame.width * 4 + 6}
-                  cornerRadius={screenshot.radius + 6}
+                  cornerRadius={screenshot.radius}
                   shadowForStrokeEnabled
                   {...shadowProps}
                 />
