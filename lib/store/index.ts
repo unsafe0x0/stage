@@ -437,7 +437,7 @@ export const useImageStore = create<ImageState>((set, get) => ({
   imageName: null,
   selectedGradient: 'sunset_vibes',
   borderRadius: 0,
-  backgroundBorderRadius: 0,
+  backgroundBorderRadius: 10,
   selectedAspectRatio: '16_9',
   backgroundConfig: {
     type: 'image',
