@@ -280,7 +280,7 @@ export function EditorRightPanel() {
                   {backgroundCategories && Object.keys(backgroundCategories).length > 0 && (
                     <div className="space-y-3">
                       <Label className="text-xs font-medium text-muted-foreground">Preset Backgrounds</Label>
-                      <div className="max-h-[400px] overflow-y-auto pr-2 space-y-3">
+                      <div className="max-h-50 overflow-y-auto pr-2 space-y-3">
                         {getAvailableCategories()
                           .filter((category: string) => category !== 'demo' && category !== 'nature')
                           .map((category: string) => {
