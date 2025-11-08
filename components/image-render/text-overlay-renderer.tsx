@@ -23,6 +23,7 @@ export const TextOverlayRenderer = () => {
         return (
           <div
             key={overlay.id}
+            data-text-overlay-id={overlay.id}
             className="absolute pointer-events-none"
             style={{
               left: `${overlay.position.x}%`,

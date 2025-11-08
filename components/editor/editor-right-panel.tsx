@@ -423,11 +423,11 @@ export function EditorRightPanel() {
                 <div className="flex justify-between items-center">
                   <Label className="text-xs font-medium text-muted-foreground">Opacity</Label>
                   <span className="text-xs text-muted-foreground font-medium">
-                    {Math.round((backgroundConfig.opacity || 1) * 100)}%
+                    {Math.round((backgroundConfig.opacity !== undefined ? backgroundConfig.opacity : 1) * 100)}%
                   </span>
                 </div>
                 <Slider
-                  value={[backgroundConfig.opacity || 1]}
+                  value={[backgroundConfig.opacity !== undefined ? backgroundConfig.opacity : 1]}
                   onValueChange={(value) => setBackgroundOpacity(value[0])}
                   min={0}
                   max={1}

@@ -187,6 +187,45 @@ function applyBlurToCanvas(
 }
 
 /**
+ * Apply opacity to a canvas
+ * This ensures background opacity is correctly applied during export
+ * 
+ * @param canvas - The canvas to apply opacity to
+ * @param opacity - Opacity value (0-1)
+ * @returns A new canvas with the opacity applied
+ */
+function applyOpacityToCanvas(
+  canvas: HTMLCanvasElement,
+  opacity: number
+): HTMLCanvasElement {
+  if (opacity >= 1) {
+    return canvas;
+  }
+
+  if (opacity <= 0) {
+    const transparentCanvas = document.createElement('canvas');
+    transparentCanvas.width = canvas.width;
+    transparentCanvas.height = canvas.height;
+    return transparentCanvas;
+  }
+
+  const opacityCanvas = document.createElement('canvas');
+  opacityCanvas.width = canvas.width;
+  opacityCanvas.height = canvas.height;
+  const ctx = opacityCanvas.getContext('2d', { willReadFrequently: false });
+  
+  if (!ctx) {
+    return canvas;
+  }
+
+  ctx.globalAlpha = opacity;
+  ctx.drawImage(canvas, 0, 0);
+  ctx.globalAlpha = 1;
+
+  return opacityCanvas;
+}
+
+/**
  * Extract noise texture from preview element
  * This ensures the exported noise matches the preview exactly
  */
@@ -409,58 +448,110 @@ async function exportOverlays(
       scaleY = uniformScale;
     }
 
-    // Add text overlays with high z-index
-    for (const overlay of textOverlays) {
-      if (!overlay.isVisible) continue;
-      
-      const textElement = document.createElement('div');
-      textElement.style.position = 'absolute';
-      textElement.style.left = `${(overlay.position.x / 100) * width}px`;
-      textElement.style.top = `${(overlay.position.y / 100) * height}px`;
-      textElement.style.transform = 'translate(-50%, -50%)';
-      textElement.style.fontSize = `${overlay.fontSize * scaleX}px`;
-      textElement.style.fontWeight = overlay.fontWeight;
-      textElement.style.fontFamily = getFontCSS(overlay.fontFamily);
-      
-      let textColor = overlay.color;
-      if (textColor && textColor.includes('oklch')) {
-        const tempEl = document.createElement('div');
-        tempEl.style.color = textColor;
-        document.body.appendChild(tempEl);
-        const computed = window.getComputedStyle(tempEl).color;
-        document.body.removeChild(tempEl);
-        textColor = computed || textColor;
+    // Try to clone existing text overlay elements from DOM first (most reliable)
+    let clonedTextElements = false;
+    
+    if (canvasContainer) {
+      const textOverlayElements = canvasContainer.querySelectorAll('[data-text-overlay-id]');
+      if (textOverlayElements.length > 0) {
+        for (const originalElement of Array.from(textOverlayElements)) {
+          const overlayId = (originalElement as HTMLElement).getAttribute('data-text-overlay-id');
+          const overlay = textOverlays.find(o => o.id === overlayId);
+          if (!overlay || !overlay.isVisible || overlay.opacity <= 0) continue;
+          
+          const clonedElement = originalElement.cloneNode(true) as HTMLElement;
+          const computedStyle = window.getComputedStyle(originalElement);
+          
+          // Convert percentage-based positioning to pixel-based for export
+          const leftPercent = overlay.position.x;
+          const topPercent = overlay.position.y;
+          clonedElement.style.left = `${(leftPercent / 100) * width}px`;
+          clonedElement.style.top = `${(topPercent / 100) * height}px`;
+          
+          // Preserve transform (translate(-50%, -50%))
+          clonedElement.style.transform = 'translate(-50%, -50%)';
+          
+          // Scale font size
+          const originalFontSize = parseFloat(computedStyle.fontSize) || overlay.fontSize;
+          clonedElement.style.fontSize = `${originalFontSize * scaleX}px`;
+          
+          // Scale text shadow if present
+          if (overlay.textShadow?.enabled) {
+            const shadow = computedStyle.textShadow;
+            if (shadow && shadow !== 'none') {
+              clonedElement.style.textShadow = shadow.replace(/(\d+\.?\d*)px/g, (match, value) => {
+                return `${parseFloat(value) * scaleX}px`;
+              });
+            }
+          }
+          
+          clonedElement.style.position = 'absolute';
+          clonedElement.style.zIndex = '2000';
+          clonedElement.style.visibility = 'visible';
+          clonedElement.style.display = 'block';
+          clonedElement.style.pointerEvents = 'none';
+          clonedElement.style.overflow = 'visible';
+          
+          container.appendChild(clonedElement);
+        }
+        clonedTextElements = true;
       }
-      textElement.style.color = textColor;
-      
-      textElement.style.opacity = overlay.opacity.toString();
-      textElement.style.whiteSpace = 'nowrap';
-      textElement.style.pointerEvents = 'none';
-      textElement.style.zIndex = '2000'; // High z-index for text overlays
-      textElement.style.visibility = 'visible';
-      textElement.style.display = 'block';
-      textElement.textContent = overlay.text;
-      
-      if (overlay.orientation === 'vertical') {
-        textElement.style.writingMode = 'vertical-rl';
-      }
-      
-      if (overlay.textShadow?.enabled) {
-        // Convert shadow color if it contains oklch
-        let shadowColor = overlay.textShadow.color;
-        if (shadowColor && shadowColor.includes('oklch')) {
+    }
+    
+    // Fallback: Create text overlays programmatically if cloning failed
+    if (!clonedTextElements) {
+      for (const overlay of textOverlays) {
+        if (!overlay.isVisible) continue;
+        if (overlay.opacity <= 0) continue;
+        
+        const textElement = document.createElement('div');
+        textElement.style.position = 'absolute';
+        textElement.style.left = `${(overlay.position.x / 100) * width}px`;
+        textElement.style.top = `${(overlay.position.y / 100) * height}px`;
+        textElement.style.transform = 'translate(-50%, -50%)';
+        textElement.style.fontSize = `${overlay.fontSize * scaleX}px`;
+        textElement.style.fontWeight = overlay.fontWeight;
+        textElement.style.fontFamily = getFontCSS(overlay.fontFamily);
+        
+        let textColor = overlay.color;
+        if (textColor && textColor.includes('oklch')) {
           const tempEl = document.createElement('div');
-          tempEl.style.color = shadowColor;
+          tempEl.style.color = textColor;
           document.body.appendChild(tempEl);
           const computed = window.getComputedStyle(tempEl).color;
           document.body.removeChild(tempEl);
-          shadowColor = computed || shadowColor;
+          textColor = computed || textColor;
         }
-        // Scale shadow offsets for export
-        textElement.style.textShadow = `${overlay.textShadow.offsetX * scaleX}px ${overlay.textShadow.offsetY * scaleY}px ${overlay.textShadow.blur * scaleX}px ${shadowColor}`;
+        textElement.style.color = textColor;
+        
+        textElement.style.opacity = overlay.opacity.toString();
+        textElement.style.whiteSpace = 'nowrap';
+        textElement.style.pointerEvents = 'none';
+        textElement.style.zIndex = '2000';
+        textElement.style.visibility = 'visible';
+        textElement.style.display = 'block';
+        textElement.style.overflow = 'visible';
+        textElement.textContent = overlay.text || '';
+        
+        if (overlay.orientation === 'vertical') {
+          textElement.style.writingMode = 'vertical-rl';
+        }
+        
+        if (overlay.textShadow?.enabled) {
+          let shadowColor = overlay.textShadow.color;
+          if (shadowColor && shadowColor.includes('oklch')) {
+            const tempEl = document.createElement('div');
+            tempEl.style.color = shadowColor;
+            document.body.appendChild(tempEl);
+            const computed = window.getComputedStyle(tempEl).color;
+            document.body.removeChild(tempEl);
+            shadowColor = computed || shadowColor;
+          }
+          textElement.style.textShadow = `${overlay.textShadow.offsetX * scaleX}px ${overlay.textShadow.offsetY * scaleY}px ${overlay.textShadow.blur * scaleX}px ${shadowColor}`;
+        }
+        
+        container.appendChild(textElement);
       }
-      
-      container.appendChild(textElement);
     }
 
     // Add image overlays with highest z-index
@@ -564,10 +655,14 @@ async function exportOverlays(
     if (document.fonts && document.fonts.ready) {
       await document.fonts.ready;
     }
-    await new Promise(resolve => setTimeout(resolve, 200));
     
-    // Force a reflow
+    // Wait longer for text elements to render and fonts to apply
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Force multiple reflows to ensure all styles are applied
     void container.offsetHeight;
+    void container.offsetWidth;
+    void container.scrollHeight;
     
     // Capture overlays with html2canvas
     const overlaysCanvas = await html2canvas(container, {
@@ -617,7 +712,8 @@ async function exportBackground(
   backgroundConfig: any,
   borderRadius: number,
   backgroundBlur: number = 0,
-  backgroundNoise: number = 0
+  backgroundNoise: number = 0,
+  backgroundOpacity: number = 1
 ): Promise<HTMLCanvasElement> {
   // Get the existing canvas-background element from the DOM - required for export
   const existingBgElement = document.getElementById('canvas-background');
@@ -808,12 +904,13 @@ async function exportBackground(
     
     // Step 2: Apply noise overlay on top of blurred background
     // This matches the preview exactly: sharp noise on top of blurred background
-    if (backgroundNoise > 0) {
-      const noiseIntensity = backgroundNoise / 100;
-      return await applyNoiseToCanvas(blurredCanvas, noiseIntensity, width, height, scale);
-    }
+    const canvasWithNoise = backgroundNoise > 0
+      ? await applyNoiseToCanvas(blurredCanvas, backgroundNoise / 100, width, height, scale)
+      : blurredCanvas;
     
-    return blurredCanvas;
+    // Step 3: Apply opacity to the final background
+    // This ensures opacity is correctly applied during export, matching the preview
+    return applyOpacityToCanvas(canvasWithNoise, backgroundOpacity);
   } catch (error) {
     // Clean up container on error
     if (container.parentNode) {
@@ -1062,7 +1159,8 @@ export async function exportElement(
   imageSrc?: string,
   screenshotRadius?: number,
   backgroundBlur: number = 0,
-  backgroundNoise: number = 0
+  backgroundNoise: number = 0,
+  backgroundOpacity: number = 1
 ): Promise<ExportResult> {
   // Wait a bit to ensure DOM is ready
   await new Promise(resolve => setTimeout(resolve, 200));
@@ -1085,7 +1183,8 @@ export async function exportElement(
       backgroundConfig,
       backgroundBorderRadius,
       backgroundBlur,
-      backgroundNoise
+      backgroundNoise,
+      backgroundOpacity
     );
 
     // Step 2: Export Konva stage (user images, frames, patterns, etc.) - excluding backgrounds
