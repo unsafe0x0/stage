@@ -34,6 +34,18 @@ interface SponsorsProps {
 
 const defaultSponsors: Sponsor[] = [
   {
+    name: "Aayushman Singh",
+    avatar: "/aayushman.jpg",
+    avatarAlt: "aayushman singh",
+    amount: "$10.00",
+    amountType: "one time",
+    total: "$10.00",
+    github: "aayushman-singh",
+    twitter: "aayushman2703",
+    website: "https://aayushman.dev",
+    url: "https://x.com/aayushman2703",
+  },
+  {
     name: "Kanak Kumar Mahala",
     avatar: "/kanak.jpg",
     avatarAlt: "kanak kumar mahala",
