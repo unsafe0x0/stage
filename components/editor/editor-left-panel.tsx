@@ -38,7 +38,7 @@ export function EditorLeftPanel() {
         {/* Header */}
         <div className="p-4 border-b border-border bg-background">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity shrink-0">
               <Image 
                 src="/logo.png" 
                 alt="Stage" 
@@ -47,14 +47,14 @@ export function EditorLeftPanel() {
                 className="h-8 w-8"
               />
             </Link>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0 max-w-[calc(100%-120px)]">
               <PresetSelector />
             </div>
             <a
               href="https://x.com/code_kartik"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 hover:bg-accent rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+              className="p-2 hover:bg-accent rounded-lg transition-colors text-muted-foreground hover:text-foreground shrink-0"
               aria-label="Twitter/X"
             >
               <FaXTwitter className="h-5 w-5" />
