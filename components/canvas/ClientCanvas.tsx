@@ -16,6 +16,51 @@ import { OVERLAY_PUBLIC_IDS } from '@/lib/cloudinary-overlays'
 // Global ref to store the Konva stage for export
 let globalKonvaStage: any = null;
 
+/**
+ * Parse CSS linear gradient string to Konva gradient properties
+ * Example: "linear-gradient(to right, #FF6B6B, #FFE66D)"
+ */
+function parseLinearGradient(gradientString: string, width: number, height: number) {
+  // Extract direction and colors from CSS gradient string
+  const match = gradientString.match(/linear-gradient\((.+)\)/);
+  if (!match) return null;
+
+  const parts = match[1].split(',').map(p => p.trim());
+  const direction = parts[0];
+  const colors = parts.slice(1);
+
+  // Determine gradient direction
+  let startPoint = { x: 0, y: 0 };
+  let endPoint = { x: width, y: 0 }; // Default to horizontal (to right)
+
+  if (direction.includes('right')) {
+    startPoint = { x: 0, y: 0 };
+    endPoint = { x: width, y: 0 };
+  } else if (direction.includes('left')) {
+    startPoint = { x: width, y: 0 };
+    endPoint = { x: 0, y: 0 };
+  } else if (direction.includes('bottom')) {
+    startPoint = { x: 0, y: 0 };
+    endPoint = { x: 0, y: height };
+  } else if (direction.includes('top')) {
+    startPoint = { x: 0, y: height };
+    endPoint = { x: 0, y: 0 };
+  }
+
+  // Build color stops array [position, color, position, color, ...]
+  const colorStops: (number | string)[] = [];
+  colors.forEach((color, index) => {
+    const position = index / (colors.length - 1);
+    colorStops.push(position, color.trim());
+  });
+
+  return {
+    startPoint,
+    endPoint,
+    colorStops,
+  };
+}
+
 function CanvasRenderer({ image }: { image: HTMLImageElement }) {
   const stageRef = useRef<any>(null)
 
@@ -478,6 +523,33 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
                 filters={backgroundBlur > 0 ? [Konva.Filters.Blur] : []}
                 blurRadius={backgroundBlur}
               />
+            ) : backgroundConfig.type === 'gradient' && backgroundStyle.background ? (
+              (() => {
+                const gradientProps = parseLinearGradient(backgroundStyle.background as string, canvasW, canvasH);
+                return gradientProps ? (
+                  <Rect
+                    ref={backgroundRef}
+                    width={canvasW}
+                    height={canvasH}
+                    fillLinearGradientStartPoint={gradientProps.startPoint}
+                    fillLinearGradientEndPoint={gradientProps.endPoint}
+                    fillLinearGradientColorStops={gradientProps.colorStops}
+                    opacity={backgroundConfig.opacity ?? 1}
+                    cornerRadius={backgroundBorderRadius}
+                    filters={backgroundBlur > 0 ? [Konva.Filters.Blur] : []}
+                    blurRadius={backgroundBlur}
+                  />
+                ) : (
+                  <Rect
+                    ref={backgroundRef}
+                    width={canvasW}
+                    height={canvasH}
+                    fill="#ffffff"
+                    opacity={backgroundConfig.opacity ?? 1}
+                    cornerRadius={backgroundBorderRadius}
+                  />
+                );
+              })()
             ) : (
               <Rect
                 ref={backgroundRef}
@@ -486,8 +558,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
                 fill={
                   backgroundConfig.type === 'solid'
                     ? (backgroundStyle.backgroundColor as string)
-                    : backgroundConfig.type === 'gradient'
-                    ? (backgroundStyle.background as string)
                     : '#ffffff'
                 }
                 opacity={backgroundConfig.opacity ?? 1}
