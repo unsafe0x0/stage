@@ -12,7 +12,7 @@ export interface WatermarkOptions {
 }
 
 const DEFAULT_OPTIONS: Required<WatermarkOptions> = {
-  text: 'stage',
+  text: 'stagee.art',
   fontSize: 0, // Will be calculated based on canvas size
   position: 'bottom-right',
   opacity: 0.7,

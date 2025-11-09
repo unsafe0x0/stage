@@ -428,13 +428,13 @@ export function CanvasProvider({ children }: { children: React.ReactNode }) {
         
         // Create watermark text only (no background)
         const watermarkText = new Konva.Text({
-          text: "Stage",
+          text: "stagee.art",
           fontSize: fontSize,
           fontFamily: "system-ui, -apple-system, sans-serif",
           fill: "rgba(255, 255, 255, 0.8)",
           fontStyle: "normal",
           fontVariant: "normal",
-          x: canvasWidth - padding - 60, // Approximate width for "Stage"
+          x: canvasWidth - padding - 60,
           y: canvasHeight - fontSize - padding,
         });
         

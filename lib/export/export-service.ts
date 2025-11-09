@@ -1256,7 +1256,7 @@ export async function exportElement(
 
     // Step 4: Add watermark
     addWatermarkToCanvas(finalCanvas, {
-      text: 'stage',
+      text: 'stagee.art',
       position: 'bottom-right',
       backgroundColor: 'transparent',
       textColor: 'rgba(255, 255, 255, 0.7)',
