@@ -55,9 +55,9 @@ function AnimatedCounter({ value }: { value: number }) {
   return <motion.span>{display}</motion.span>;
 }
 
-export function Navigation({ 
-  ctaLabel = "Editor", 
-  ctaHref = "/home" 
+export function Navigation({
+  ctaLabel = "Editor",
+  ctaHref = "/home"
 }: NavigationProps) {
   const { stars, isLoading } = useGitHubStars();
 
@@ -65,10 +65,10 @@ export function Navigation({
     <nav className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-xl supports-backdrop-filter:bg-background/90">
       <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center">
-          <Image 
-            src="/logo.png" 
-            alt="Stage" 
-            width={32} 
+          <Image
+            src="/logo.png"
+            alt="Stage"
+            width={32}
             height={32}
             className="h-8 w-8"
           />
@@ -98,7 +98,7 @@ export function Navigation({
           >
             <SiX className="h-5 w-5 text-current" />
           </Link>
-          <Link href={ctaHref}>
+          <Link href={ctaHref} className="flex items-center">
             <Button className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm px-3 sm:px-4 py-2 touch-manipulation">
               {ctaLabel}
             </Button>
