@@ -1,6 +1,6 @@
 # Screenshot Service
 
-Standalone Express.js microservice for capturing website screenshots using Playwright.
+Standalone Express.js microservice for capturing website screenshots using Puppeteer.
 
 ## Why Separate Service?
 
@@ -18,11 +18,9 @@ cd server
 npm install
 ```
 
-### 2. Install Playwright Browsers
+### 2. Puppeteer Setup
 
-```bash
-npx playwright install chromium
-```
+Puppeteer automatically downloads Chromium during `npm install`. No additional setup needed.
 
 ### 3. Create .env file
 
@@ -114,20 +112,19 @@ Health check endpoint.
    - **Build Command**: `npm install && npm run build`
    - **Start Command**: `npm start`
    - **Plan**: Starter (minimum) or higher for better performance
-6. Add Environment Variables:
+6. Add Environment Variables (optional):
    - `NODE_ENV`: `production`
-   - `PLAYWRIGHT_BROWSERS_PATH`: `0` (required - tells Playwright to use browsers in node_modules)
    - `PORT`: (auto-set by Render)
 7. Click "Create Web Service"
 
 **Render-specific notes:**
 - The `render.yaml` file is included for automatic configuration
-- Playwright browsers are installed during the build step using `PLAYWRIGHT_BROWSERS_PATH=0` to ensure they persist in `node_modules`
-- System dependencies are pre-installed in Render's Node.js environment (no `--with-deps` needed)
+- Puppeteer automatically downloads Chromium during `npm install` (~150MB)
+- No manual browser installation or system dependencies needed
 - Health check endpoint is automatically configured at `/health`
 - Minimum 512MB RAM recommended (Starter plan)
 - For production, consider upgrading to Standard plan for better performance
-- Build time: ~2-3 minutes (includes browser download ~280MB)
+- Build time: ~2-3 minutes (includes Chromium download)
 
 ### Option 2: Railway
 
@@ -169,7 +166,7 @@ pm2 save
 - `PORT` - Port number (auto-set by Render, defaults to 3001 locally)
 - `SCREENSHOT_SERVICE_PORT` - Alternative port setting (fallback if PORT not set)
 - `NODE_ENV` - Environment mode (`production` or `development`)
-- `PLAYWRIGHT_BROWSERS_PATH` - **Required**: Set to `0` to use browsers installed in `node_modules` (critical for Render deployment)
+- `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD` - Set to `false` to ensure Chromium downloads (default behavior)
 - `ALLOWED_ORIGINS` - Comma-separated list of allowed CORS origins (optional, defaults to `*` allowing all)
   - Example: `https://your-app.vercel.app,https://www.yourdomain.com`
   - **Note**: Server-to-server requests (from Next.js API routes) don't require CORS, but this is useful if you need browser access
@@ -194,21 +191,19 @@ curl -X POST http://localhost:3001/screenshot \
 
 ## Troubleshooting
 
-### "Failed to launch browser" or "Executable doesn't exist"
+### "Failed to launch browser" or "Browser not found"
 
 **On Render:**
-- The build command automatically includes `PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium`
-- This installs browsers in `node_modules` (which persists) - system dependencies are pre-installed
-- Check build logs to verify Playwright installation succeeded (look for "Chromium downloaded")
-- If the error persists, verify the build completed successfully
-- Ensure you're using the `render.yaml` configuration or manually set the build command
-- If issues persist, upgrade to a plan with more resources (Standard plan recommended)
-- Note: We don't use `--with-deps` because Render doesn't allow root access, but system deps are pre-installed
+- Puppeteer automatically downloads Chromium during `npm install`
+- Check build logs to verify Chromium download succeeded
+- Ensure `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD` is not set to `true`
+- If issues persist, try clearing cache and redeploying
+- Upgrade to Standard plan if memory issues occur
 
 **Local/Self-hosted:**
-Install system dependencies:
+Puppeteer handles browser installation automatically. If issues occur:
 ```bash
-npx playwright install-deps chromium
+npm install puppeteer
 ```
 
 ### High memory usage

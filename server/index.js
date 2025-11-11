@@ -1,36 +1,25 @@
 import express from 'express';
 import cors from 'cors';
-import { chromium } from 'playwright';
+import puppeteer from 'puppeteer';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
 dotenv.config();
 
-process.env.PLAYWRIGHT_BROWSERS_PATH = process.env.PLAYWRIGHT_BROWSERS_PATH || '0';
-
 const app = express();
 const PORT = process.env.PORT || process.env.SCREENSHOT_SERVICE_PORT || 3001;
 
-async function verifyPlaywrightInstallation() {
+async function verifyBrowserInstallation() {
   try {
-    const browser = await chromium.launch({ 
+    const browser = await puppeteer.launch({ 
       headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-      ]
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     await browser.close();
-    console.log('✓ Playwright browser verified');
+    console.log('✓ Puppeteer browser verified');
   } catch (error) {
-    console.error('✗ Playwright browser not available:', error.message);
-    console.error('Browser path:', process.env.PLAYWRIGHT_BROWSERS_PATH || 'default');
-    console.error('Please ensure build command includes: PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium');
-    console.error('This error usually means:');
-    console.error('1. Browsers were not installed during build');
-    console.error('2. System dependencies are missing (Render should have these pre-installed)');
-    console.error('3. Browser path is incorrect');
+    console.error('✗ Puppeteer browser not available:', error.message);
+    console.error('Puppeteer will download Chromium automatically on first run');
     process.exit(1);
   }
 }
@@ -99,7 +88,7 @@ async function captureScreenshot(url, options = {}) {
   let browser = null;
 
   try {
-    browser = await chromium.launch({
+    browser = await puppeteer.launch({
       headless: true,
       args: [
         '--no-sandbox',
@@ -123,23 +112,26 @@ async function captureScreenshot(url, options = {}) {
       ]
     });
 
-    const context = await browser.newContext({
-      viewport,
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      extraHTTPHeaders: {
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      },
-      bypassCSP: true,
-      ignoreHTTPSErrors: true,
+    const page = await browser.newPage();
+    
+    await page.setViewport({
+      width: viewport.width,
+      height: viewport.height,
     });
 
-    const page = await context.newPage();
+    await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    });
+
     page.setDefaultNavigationTimeout(timeout);
     page.setDefaultTimeout(timeout);
 
-    const strategies = [
-      { waitUntil: 'networkidle', timeout: Math.min(15000, timeout) },
+    const navigationStrategies = [
+      { waitUntil: 'networkidle0', timeout: Math.min(15000, timeout) },
+      { waitUntil: 'networkidle2', timeout: Math.min(20000, timeout) },
       { waitUntil: 'load', timeout: Math.min(20000, timeout) },
       { waitUntil: 'domcontentloaded', timeout: Math.min(10000, timeout) },
     ];
@@ -147,9 +139,12 @@ async function captureScreenshot(url, options = {}) {
     let navigationSuccess = false;
     let usedStrategy = null;
 
-    for (const strategy of strategies) {
+    for (const strategy of navigationStrategies) {
       try {
-        await page.goto(url, strategy);
+        await page.goto(url, { 
+          waitUntil: strategy.waitUntil,
+          timeout: strategy.timeout 
+        });
         navigationSuccess = true;
         usedStrategy = strategy.waitUntil;
         break;
@@ -198,6 +193,7 @@ app.get('/', (req, res) => {
     service: 'screenshot-service',
     version: '1.0.0',
     status: 'running',
+    browser: 'puppeteer',
     endpoints: {
       health: '/health',
       screenshot: 'POST /screenshot',
@@ -210,6 +206,7 @@ app.get('/health', (req, res) => {
     status: 'ok', 
     service: 'screenshot-service', 
     version: '1.0.0',
+    browser: 'puppeteer',
     uptime: process.uptime(),
     memory: process.memoryUsage(),
   });
@@ -262,9 +259,9 @@ app.post('/screenshot', async (req, res) => {
 
     if (error.message.includes('Executable doesn\'t exist') || 
         error.message.includes('Browser not found') ||
-        error.message.includes('playwright')) {
+        error.message.includes('Failed to launch')) {
       return res.status(500).json({
-        error: 'Browser not available. Please ensure Playwright browsers are installed.',
+        error: 'Browser not available. Please ensure Puppeteer is properly installed.',
         type: 'browser_error',
       });
     }
@@ -331,13 +328,13 @@ app.listen(PORT, () => {
   console.log(`Screenshot service running on http://localhost:${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Browser: Puppeteer (Chromium)`);
   
   if (process.env.NODE_ENV === 'production') {
-    verifyPlaywrightInstallation().catch((error) => {
-      console.error('Failed to verify Playwright:', error);
+    verifyBrowserInstallation().catch((error) => {
+      console.error('Failed to verify browser:', error);
     });
   }
 });
 
 export default app;
-
