@@ -4,52 +4,81 @@ import { checkRateLimit } from '@/lib/rate-limit'
 
 export const maxDuration = 60
 
-const SCREENSHOT_SERVICE_URL = process.env.SCREENSHOT_SERVICE_URL || 'http://localhost:3001'
+const SCREENSHOT_API_URL = process.env.SCREENSHOT_API_URL || 'https://api.screen-shot.xyz'
 
 async function captureViaService(url: string): Promise<{ screenshot: string; strategy: string }> {
   try {
-    const response = await fetch(`${SCREENSHOT_SERVICE_URL}/screenshot`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        url,
-        viewport: {
-          width: 1920,
-          height: 1080
-        }
-      }),
+    const params = new URLSearchParams({
+      url: url,
+      width: '1920',
+      height: '1080',
+      format: 'png',
+    })
+    
+    const apiUrl = `${SCREENSHOT_API_URL}/take?${params.toString()}`
+    
+    const response = await fetch(apiUrl, {
+      method: 'GET',
       signal: AbortSignal.timeout(55000),
     })
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error', type: 'unknown' }))
-      
-      if (errorData.type === 'timeout') {
-        throw new Error('timeout')
-      }
-      if (errorData.type === 'connection_error') {
-        throw new Error('connection_error')
-      }
-      if (errorData.type === 'ssl_error') {
-        throw new Error('ssl_error')
-      }
-      
-      throw new Error(errorData.error || `Service returned ${response.status}`)
+    const contentType = response.headers.get('content-type') || ''
+    const arrayBuffer = await response.arrayBuffer()
+    
+    if (arrayBuffer.byteLength === 0) {
+      throw new Error('Empty response from screenshot API')
     }
 
-    const data = await response.json()
-    
-    if (!data.success) {
-      throw new Error(data.error || 'Screenshot capture failed')
+    if (!response.ok) {
+      let errorMessage = `Screenshot API returned ${response.status}`
+      
+      try {
+        const text = new TextDecoder().decode(arrayBuffer)
+        const errorData = JSON.parse(text)
+        errorMessage = errorData.error || errorMessage
+      } catch {
+      }
+      
+      if (response.status === 408 || response.status === 504) {
+        throw new Error('timeout')
+      }
+      if (response.status >= 400 && response.status < 500) {
+        throw new Error('connection_error')
+      }
+      throw new Error(errorMessage)
     }
+
+    const buffer = Buffer.from(arrayBuffer)
+    
+    const firstBytes = buffer.subarray(0, 8)
+    const isPng = firstBytes[0] === 0x89 && firstBytes[1] === 0x50 && firstBytes[2] === 0x4E && firstBytes[3] === 0x47
+    const isJpeg = firstBytes[0] === 0xFF && firstBytes[1] === 0xD8
+    
+    if (!isPng && !isJpeg) {
+      if (contentType.includes('application/json') || contentType.includes('text/')) {
+        try {
+          const text = new TextDecoder().decode(arrayBuffer)
+          const errorData = JSON.parse(text)
+          throw new Error(errorData.error || 'Invalid response from screenshot API')
+        } catch {
+        }
+      }
+      throw new Error('Invalid image format received from screenshot API: expected PNG or JPEG')
+    }
+    
+    const base64Screenshot = buffer.toString('base64')
     
     return {
-      screenshot: data.screenshot,
-      strategy: data.strategy || 'external-service',
+      screenshot: base64Screenshot,
+      strategy: 'screen-shot-api',
     }
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('timeout')
+    }
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('connection_error')
+    }
     console.error('Screenshot service error:', error)
     throw error
   }

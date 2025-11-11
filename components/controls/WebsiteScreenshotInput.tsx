@@ -82,9 +82,33 @@ export function WebsiteScreenshotInput() {
         throw new Error(data.error || 'Failed to capture screenshot')
       }
 
+      if (!data.screenshot || typeof data.screenshot !== 'string') {
+        throw new Error('Invalid screenshot data received from server')
+      }
+
       // Convert base64 to blob URL
-      const base64Data = data.screenshot
-      const byteCharacters = atob(base64Data)
+      let base64Data = data.screenshot.trim()
+      
+      // Remove data URL prefix if present (e.g., "data:image/png;base64,")
+      if (base64Data.includes(',')) {
+        base64Data = base64Data.split(',')[1]
+      }
+      
+      // Clean base64 string (remove whitespace and newlines)
+      base64Data = base64Data.replace(/\s/g, '')
+      
+      if (!base64Data) {
+        throw new Error('Empty screenshot data received')
+      }
+
+      let byteCharacters: string
+      try {
+        byteCharacters = atob(base64Data)
+      } catch (decodeError) {
+        console.error('Base64 decode error:', decodeError)
+        throw new Error('Failed to decode screenshot data. The image may be corrupted.')
+      }
+
       const byteNumbers = new Array(byteCharacters.length)
       for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i)
