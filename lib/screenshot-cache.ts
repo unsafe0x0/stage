@@ -94,7 +94,7 @@ async function uploadToCloudinary(
 
 export async function getCachedScreenshot(
   url: string,
-  maxAgeMs: number = 30 * 24 * 60 * 60 * 1000
+  maxAgeMs: number = 2 * 24 * 60 * 60 * 1000
 ): Promise<string | null> {
   try {
     const hash = hashUrl(url)
@@ -251,7 +251,7 @@ export async function invalidateCacheBatch(urls: string[]): Promise<void> {
   }
 }
 
-export async function clearOldCache(maxAgeMs: number = 30 * 24 * 60 * 60 * 1000): Promise<void> {
+export async function clearOldCache(maxAgeMs: number = 2 * 24 * 60 * 60 * 1000): Promise<void> {
   try {
     const cutoffDate = new Date(Date.now() - maxAgeMs)
     
