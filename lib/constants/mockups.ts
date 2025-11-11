@@ -32,11 +32,11 @@ export const MOCKUP_DEFINITIONS: MockupDefinition[] = [
     type: 'iwatch',
     src: '/mockups/mac/iwatch.png',
     screenArea: {
-      x: 0.133,
-      y: 0.113,
-      width: 0.734,
-      height: 0.774,
-      borderRadius: 60,
+      x: 0.042,
+      y: 0.18,
+      width: 0.900,
+      height: 0.632,
+      borderRadius: 40,
     },
   },
   {
