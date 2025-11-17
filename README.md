@@ -10,6 +10,7 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
 ## Features
 
 ### Image Editing
+
 - **Image Upload** - Drag & drop or file picker for image uploads
 - **Website Screenshots** - Capture screenshots of websites via URL using the free [Screen-Shot.xyz](https://screen-shot.xyz) API (no API key required)
 - **Image Transformations** - Scale, opacity, rotation, and border radius controls
@@ -18,6 +19,7 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
 - **Shadows** - Customizable shadows with blur, offset, spread, and color controls
 
 ### Text & Overlays
+
 - **Text Overlays** - Add multiple text layers with independent positioning
 - **Custom Fonts** - Choose from a variety of font families
 - **Text Styling** - Customize font size, weight, color, and opacity
@@ -26,12 +28,14 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
 - **Overlay Controls** - Position, size, rotation, flip, and opacity controls
 
 ### Backgrounds
+
 - **Gradient Backgrounds** - Beautiful gradient presets with customizable colors and angles
 - **Solid Colors** - Choose from a palette of solid color backgrounds
 - **Image Backgrounds** - Upload your own or use Cloudinary-hosted backgrounds
 - **Background Effects** - Apply blur and noise effects to backgrounds
 
 ### Design Tools
+
 - **Aspect Ratios** - Support for Instagram, social media, and standard formats
   - Square (1:1), Portrait (4:5, 9:16), Landscape (16:9)
   - Open Graph, Twitter Banner, LinkedIn Banner, YouTube Banner
@@ -41,6 +45,7 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
 - **Copy to Clipboard** - Copy designs directly to clipboard
 
 ### User Experience
+
 - **Responsive Design** - Works seamlessly on desktop and mobile
 - **Real-time Preview** - See changes instantly as you edit
 - **Local Storage** - Designs persist in browser storage
@@ -56,12 +61,14 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/your-username/stage.git
    cd stage
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -69,12 +76,13 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
 3. **Set up environment variables**
 
    Create a `.env.local` file in the root directory:
+
    ```env
    # Database (Required for screenshot caching)
    DATABASE_URL="postgresql://user:password@host:port/dbname?schema=public"
 
    # Cloudinary (Required for screenshot storage)
-   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dlbe0tua7
    CLOUDINARY_API_KEY=your-api-key
    CLOUDINARY_API_SECRET=your-api-secret
 
@@ -90,15 +98,17 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
    > **Note**: Screenshot feature requires database and Cloudinary. All other core features including **export work fully in-browser**. Cloudinary is also used for optional image optimization of backgrounds and overlays. The screenshot API uses the free [Screen-Shot.xyz](https://screen-shot.xyz) service by default (no API key required).
 
 4. **Set up the database**
+
    ```bash
    # Run Prisma migrations to create the database schema
    npx prisma migrate dev --name init
-   
+
    # Or use db push for quick setup (no migration files)
    npx prisma db push
    ```
 
 5. **Start the development server**
+
    ```bash
    npm run dev
    ```
@@ -112,11 +122,13 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
 ### Basic Workflow
 
 1. **Upload an Image**
+
    - Drag and drop an image onto the canvas, or
    - Click to browse and select a file, or
    - Enter a website URL to capture a screenshot
 
 2. **Customize Your Design**
+
    - Adjust image properties (scale, opacity, border radius)
    - Choose a background (gradient, solid color, or image)
    - Add text overlays with custom styling
@@ -125,6 +137,7 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
    - Use 3D perspective transforms
 
 3. **Select Aspect Ratio**
+
    - Choose from various aspect ratios for different use cases
    - Instagram posts, stories, social media banners, etc.
 
@@ -137,30 +150,36 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
 ## 🛠️ Tech Stack
 
 ### Core
+
 - **[Next.js 16](https://nextjs.org/)** - React framework with App Router
 - **[React 19](https://react.dev/)** - UI library with React Compiler
 - **[TypeScript](https://www.typescriptlang.org/)** - Type safety
 
 ### Canvas & Rendering
+
 - **[Konva](https://konvajs.org/)** - 2D canvas rendering engine
 - **[React-Konva](https://github.com/konvajs/react-konva)** - React bindings for Konva
 - **[html2canvas](https://html2canvas.hertzen.com/)** - DOM-to-canvas conversion
 - **[modern-screenshot](https://github.com/1000px/modern-screenshot)** - 3D transform capture
 
 ### State Management
+
 - **[Zustand](https://github.com/pmndrs/zustand)** - Lightweight state management
 
 ### Styling
+
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[Radix UI](https://www.radix-ui.com/)** - Accessible component primitives
 - **[Lucide React](https://lucide.dev/)** - Icon library
 
 ### Image Processing & Storage
+
 - **[Cloudinary](https://cloudinary.com/)** - Image optimization, CDN, and screenshot storage
 - **[Sharp](https://sharp.pixelplumbing.com/)** - Server-side image processing
 - **[Screen-Shot.xyz API](https://screen-shot.xyz)** - Free website screenshot capture service (no API key required)
 
 ### Database & Caching
+
 - **[Prisma](https://www.prisma.io/)** - Type-safe ORM
 - **[PostgreSQL](https://www.postgresql.org/)** - Database for screenshot caching
 
@@ -261,6 +280,7 @@ CLEANUP_SECRET=your-generated-secret-string-here
 5. Click **Save**
 
 **Security Notes:**
+
 - Use a long, random string (at least 32 characters, 64+ recommended)
 - Never commit this to version control (it's already in `.gitignore`)
 - Use different secrets for development and production
@@ -283,6 +303,7 @@ curl -X POST http://localhost:3000/api/cleanup-cache \
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -295,34 +316,39 @@ curl -X POST http://localhost:3000/api/cleanup-cache \
 **Option 1: Vercel Cron Jobs** (Pro/Enterprise plans)
 
 Add to `vercel.json`:
+
 ```json
 {
-  "crons": [{
-    "path": "/api/cleanup-cache",
-    "schedule": "0 2 * * 0"
-  }]
+  "crons": [
+    {
+      "path": "/api/cleanup-cache",
+      "schedule": "0 2 * * 0"
+    }
+  ]
 }
 ```
 
 Then create a cron route at `app/api/cleanup-cache/cron/route.ts`:
+
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-import { clearOldCache } from '@/lib/screenshot-cache'
+import { NextRequest, NextResponse } from 'next/server';
+import { clearOldCache } from '@/lib/screenshot-cache';
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization')
+  const authHeader = request.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  
-  await clearOldCache()
-  return NextResponse.json({ success: true })
+
+  await clearOldCache();
+  return NextResponse.json({ success: true });
 }
 ```
 
 **Option 2: External Cron Service** (Free tier compatible)
 
 Use services like:
+
 - [cron-job.org](https://cron-job.org) (free)
 - [EasyCron](https://www.easycron.com) (free tier available)
 - GitHub Actions scheduled workflows
@@ -336,6 +362,7 @@ Run the cleanup API call manually when needed, especially when approaching Cloud
 #### What Gets Cleaned
 
 The cleanup process:
+
 1. Finds all screenshot cache entries older than 2 days (default)
 2. Deletes the images from Cloudinary storage
 3. Removes the database records
@@ -346,11 +373,13 @@ The cleanup process:
 #### Monitoring Cloudinary Storage
 
 Check your Cloudinary dashboard to monitor:
+
 - **Storage Usage**: Total storage consumed
 - **Bandwidth**: Monthly bandwidth usage
 - **Transformations**: Number of image transformations
 
 **Free Tier Limits**:
+
 - Storage: 25 GB
 - Bandwidth: 25 GB/month
 - Transformations: 25,000/month
@@ -360,6 +389,7 @@ Check your Cloudinary dashboard to monitor:
 ### Rate Limiting
 
 The screenshot API includes built-in rate limiting:
+
 - **Limit**: 20 requests per minute per IP
 - **Response**: 429 status with `Retry-After` header
 - **Headers**: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
