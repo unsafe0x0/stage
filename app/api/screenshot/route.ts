@@ -41,6 +41,7 @@ async function captureViaService(url: string, deviceType: 'desktop' | 'mobile' =
         const errorData = JSON.parse(text)
         errorMessage = errorData.error || errorMessage
       } catch {
+        // Ignore parsing errors, use default error message
       }
       
       if (response.status === 408 || response.status === 504) {
@@ -65,6 +66,8 @@ async function captureViaService(url: string, deviceType: 'desktop' | 'mobile' =
           const errorData = JSON.parse(text)
           throw new Error(errorData.error || 'Invalid response from screenshot API')
         } catch {
+          // Ignore parsing errors, throw generic error
+          throw new Error('Invalid response from screenshot API')
         }
       }
       throw new Error('Invalid image format received from screenshot API: expected PNG or JPEG')

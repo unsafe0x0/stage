@@ -125,6 +125,39 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architecture documentation
 - Constants: camelCase (e.g., `aspect-ratios.ts`)
 - Types: PascalCase interfaces/types (e.g., `CanvasObject`)
 
+### Linting and Code Quality
+
+We use ESLint to maintain code quality and consistency across the project.
+
+**Running Linters:**
+```bash
+# Check for linting errors
+npm run lint
+
+# Automatically fix linting errors
+npm run lint:fix
+```
+
+**Before Committing:**
+- Always run `npm run lint` before committing your changes
+- Fix any linting errors or warnings
+- Use `npm run lint:fix` to automatically fix auto-fixable issues
+
+**Linting Rules:**
+- TypeScript strict mode is enforced
+- React hooks rules are enforced
+- Unused variables must be prefixed with `_` (e.g., `_unusedVar`)
+- `any` types are discouraged (warnings will be shown)
+- Console statements are limited to `console.warn` and `console.error`
+
+**Configuration:**
+- ESLint config: `eslint.config.mjs` (flat config format)
+- The configuration includes:
+  - ESLint recommended rules
+  - TypeScript ESLint recommended rules
+  - React and React Hooks plugins
+  - Custom rules for Next.js best practices
+
 ### Import Organization
 
 ```typescript

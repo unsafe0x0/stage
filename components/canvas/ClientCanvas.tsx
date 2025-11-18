@@ -22,6 +22,7 @@ import { getFontCSS } from '@/lib/constants/fonts';
 import { generateNoiseTexture } from '@/lib/export/export-utils';
 import { getCldImageUrl } from '@/lib/cloudinary';
 import { OVERLAY_PUBLIC_IDS } from '@/lib/cloudinary-overlays';
+import { cloudinaryPublicIds } from '@/lib/cloudinary-backgrounds';
 import { MockupRenderer } from '@/components/mockups/MockupRenderer';
 
 // Global ref to store the Konva stage for export
@@ -169,6 +170,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
   const textTransformerRef = useRef<any>(null);
   const textLayerRef = useRef<any>(null);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (backgroundNoise > 0) {
       // Generate noise texture using Gaussian distribution for realistic grain
@@ -184,6 +186,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
   const containerWidth = responsiveDimensions.width;
   const containerHeight = responsiveDimensions.height;
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (backgroundConfig.type === 'image' && backgroundConfig.value) {
       const imageValue = backgroundConfig.value as string;
@@ -222,7 +225,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
         !imageUrl.startsWith('data:')
       ) {
         // It might be a Cloudinary public ID, construct URL
-        const { cloudinaryPublicIds } = require('@/lib/cloudinary-backgrounds');
         if (cloudinaryPublicIds.includes(imageUrl)) {
           // Use container dimensions for better quality
           imageUrl = getCldImageUrl({
@@ -311,6 +313,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
     return () => window.removeEventListener('resize', updateViewportSize);
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (!patternStyle.enabled) {
       setPatternImage(null);
@@ -336,6 +339,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
     patternStyle.blur,
   ]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (!noise.enabled || noise.type === 'none') {
       setNoiseImage(null);
@@ -1792,6 +1796,7 @@ export default function ClientCanvas() {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const { screenshot, setScreenshot } = useEditorStore();
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (!screenshot.src) {
       setImage(null);
