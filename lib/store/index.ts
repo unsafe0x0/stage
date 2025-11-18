@@ -105,7 +105,13 @@ function parseGradientColors(gradientStr: string): { colorA: string; colorB: str
   return { colorA, colorB, direction }
 }
 
-interface EditorState {
+// helper function that omits setter types from EditorState and ImageState; only keeps the properties; excludes any functions
+export type OmitFunctions<T> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [K in keyof T as T[K] extends (...args: any[]) => any ? never : K]: T[K];
+};
+
+export interface EditorState {
   // Screenshot/image state
   screenshot: {
     src: string | null
@@ -284,8 +290,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
 // Sync hook to keep editor store in sync with image store
 export function useEditorStoreSync() {
-  const imageStore = useImageStore()
-  const editorStore = useEditorStore()
+  const imageStore = useImageStore();
+  const editorStore = useEditorStore();
 
   // Sync when image store changes
   React.useEffect(() => {
@@ -402,7 +408,7 @@ export function useEditorStoreSync() {
 }
 
 // Re-export existing ImageState interface and store
-interface ImageState {
+export interface ImageState {
   uploadedImageUrl: string | null
   imageName: string | null
   selectedGradient: GradientKey
@@ -426,8 +432,9 @@ interface ImageState {
     rotateZ: number
     translateX: number
     translateY: number
-    scale: number
-  }
+    scale: number;
+  };
+  setUploadedImageUrl: (url: string | null, name: string | null) => void;
   setImage: (file: File) => void
   clearImage: () => void
   setGradient: (gradient: GradientKey) => void
@@ -506,6 +513,13 @@ export const useImageStore = create<ImageState>((set, get) => ({
     scale: 1,
   },
 
+  setUploadedImageUrl: (url: string | null, name: string | null = null) => {
+    set({
+      uploadedImageUrl: url,
+      imageName: name,
+    });
+  },
+
   setImage: (file: File) => {
     const imageUrl = URL.createObjectURL(file)
     set({
@@ -517,7 +531,6 @@ export const useImageStore = create<ImageState>((set, get) => ({
         type: 'image',
         value: 'backgrounds/backgrounds/assets/asset-20',
         opacity: 1,
-        
       },
       selectedGradient: 'orange_fire',
       imageShadow: {
