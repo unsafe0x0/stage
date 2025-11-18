@@ -555,7 +555,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           height: `${canvasH}px`,
           minWidth: `${canvasW}px`,
           minHeight: `${canvasH}px`,
-          overflow: 'visible',
+          overflow: 'hidden',
         }}
       >
         {/* 3D Transformed Image Overlay - Only when 3D transforms are active (HTML fallback for 3D) */}
@@ -576,7 +576,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
               transformStyle: 'preserve-3d',
               zIndex: 15,
               pointerEvents: 'none',
-              overflow: 'visible',
+              overflow: 'hidden',
             }}
           >
             {/* Shadow wrapper - transforms with the frame */}
