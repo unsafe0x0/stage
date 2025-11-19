@@ -273,7 +273,7 @@ export function EditorRightPanel() {
                   {backgroundCategories && Object.keys(backgroundCategories).length > 0 && (
                     <div className="space-y-3">
                       <Label className="text-xs font-medium text-muted-foreground">Preset Backgrounds</Label>
-                      <div className="max-h-50 overflow-y-auto pr-2 space-y-3">
+                      <div className="space-y-3">
                         {getAvailableCategories()
                           .filter((category: string) => category !== 'demo' && category !== 'nature')
                           .map((category: string) => {
@@ -287,7 +287,7 @@ export function EditorRightPanel() {
                                 <Label className="text-xs font-medium text-muted-foreground capitalize">
                                   {categoryDisplayName} Wallpapers
                                 </Label>
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
                                   {categoryBackgrounds.map((publicId: string, idx: number) => {
                                     const thumbnailUrl = getCldImageUrl({
                                       src: publicId,
@@ -306,7 +306,7 @@ export function EditorRightPanel() {
                                           setBackgroundValue(publicId);
                                           setBackgroundType('image');
                                         }}
-                                        className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all w-full ${
+                                        className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all shrink-0 w-32 ${
                                           backgroundConfig.value === publicId
                                             ? 'border-primary ring-2 ring-ring shadow-sm'
                                             : 'border-border hover:border-border/80'
