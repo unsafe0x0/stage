@@ -489,12 +489,12 @@ export const useImageStore = create<ImageState>((set, get) => ({
     title: '',
   },
   imageShadow: {
-    enabled: false,
-    blur: 10,
+    enabled: true,
+    blur: 24,
     offsetX: 0,
-    offsetY: 4,
-    spread: 0,
-    color: 'rgba(0, 0, 0, 0.3)',
+    offsetY: 6,
+    spread: 3,
+    color: 'rgba(0, 0, 0, 0.25)',
   },
   perspective3D: {
     perspective: 200, // em units, converted to px
@@ -520,6 +520,14 @@ export const useImageStore = create<ImageState>((set, get) => ({
         
       },
       selectedGradient: 'orange_fire',
+      imageShadow: {
+        enabled: true,
+        blur: 24,
+        offsetX: 0,
+        offsetY: 6,
+        spread: 3,
+        color: 'rgba(0, 0, 0, 0.25)',
+      },
       perspective3D: {
         perspective: 200,
         rotateX: 0,
