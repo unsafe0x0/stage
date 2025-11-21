@@ -39,42 +39,6 @@ interface Perspective3DOverlayProps {
   imageOpacity: number;
 }
 
-function calculateSafeScale(
-  width: number,
-  height: number,
-  rotateX: number,
-  rotateY: number,
-  rotateZ: number,
-  canvasW: number,
-  canvasH: number
-): number {
-  const maxRotation = Math.max(
-    Math.abs(rotateX),
-    Math.abs(rotateY),
-    Math.abs(rotateZ)
-  )
-
-  if (maxRotation === 0) return 1
-
-  const rotationRad = (maxRotation * Math.PI) / 180
-  const cosRotation = Math.abs(Math.cos(rotationRad))
-  const sinRotation = Math.abs(Math.sin(rotationRad))
-
-  const projectedWidth = width * cosRotation + height * sinRotation
-  const projectedHeight = height * cosRotation + width * sinRotation
-  const maxProjected = Math.max(projectedWidth, projectedHeight)
-
-  const padding = 10
-  const availableWidth = canvasW - padding * 2
-  const availableHeight = canvasH - padding * 2
-
-  const scaleX = availableWidth / maxProjected
-  const scaleY = availableHeight / maxProjected
-  const safeScale = Math.min(scaleX, scaleY)
-
-  return Math.max(0.6, Math.min(1.2, safeScale))
-}
-
 export function Perspective3DOverlay({
   has3DTransform,
   perspective3D,
@@ -99,19 +63,9 @@ export function Perspective3DOverlay({
 }: Perspective3DOverlayProps) {
   if (!has3DTransform) return null;
 
-  const safeScale = calculateSafeScale(
-    framedW,
-    framedH,
-    perspective3D.rotateX,
-    perspective3D.rotateY,
-    perspective3D.rotateZ + screenshot.rotation,
-    canvasW,
-    canvasH
-  )
-
   const perspective3DTransform = `
     translate(${perspective3D.translateX}%, ${perspective3D.translateY}%)
-    scale(${perspective3D.scale * safeScale})
+    scale(${perspective3D.scale * 0.85})
     rotateX(${perspective3D.rotateX}deg)
     rotateY(${perspective3D.rotateY}deg)
     rotateZ(${perspective3D.rotateZ + screenshot.rotation}deg)
